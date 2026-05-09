@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "548462658678",
+    "project_id": "trader-x-academy",
+    "storage_bucket": "trader-x-academy.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:548462658678:android:ed3da94923eb53d458cb57",
+        "android_client_info": {
+          "package_name": "traderx.id"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1HTZ7H_Ir-2RnjWipQlfswIO_1pyJCcg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
+
+id("com.google.gms.google-services") version "4.4.4" apply false
+id("com.android.application")
+id("com.google.gms.google-services")
+implementation(platform("com.google.firebase:firebase-bom:34.13.0"))
+implementation("com.google.firebase:firebase-analytics")
