@@ -1,0 +1,2447 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Trader X Academy | Jurnal Trader X</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #05000b;
+      --card: #10091d;
+      --line: rgba(167,109,255,.28);
+      --line2: rgba(167,109,255,.52);
+      --purple: #8b4dff;
+      --purple2: #a967ff;
+      --green: #60e8ad;
+      --red: #ff5e83;
+      --blue: #4bc3ff;
+      --yellow: #ffd166;
+      --text: #f8f7ff;
+      --muted: #9aa0b8;
+      --shadow: 0 26px 80px rgba(0,0,0,.52);
+      --radius: 28px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 50% -10%, rgba(139,77,255,.2), transparent 30%),
+        radial-gradient(circle at 0% 45%, rgba(139,77,255,.08), transparent 26%),
+        #05000b;
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .auth {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(180deg, rgba(14,7,27,.98), rgba(7,2,15,.98));
+      box-shadow: 0 0 90px rgba(0,0,0,.65);
+    }
+
+    .auth-card {
+      width: 100%;
+      border-radius: 34px;
+      background: linear-gradient(180deg, rgba(22,12,39,.92), rgba(9,6,20,.96));
+      border: 1px solid var(--line2);
+      box-shadow: var(--shadow);
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-card::before,
+    .card::before,
+    .stat::before,
+    .item::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, rgba(139,77,255,.18), transparent 35%, rgba(75,195,255,.06));
+      pointer-events: none;
+    }
+
+    .auth-card > *,
+    .card > *,
+    .stat > *,
+    .item > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-logo {
+      width: 78px;
+      height: 78px;
+      border-radius: 27px;
+      margin: 0 auto 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(145deg, #2d0d56, #8b4dff 58%, #1b0636);
+      border: 1px solid rgba(201,164,255,.45);
+      box-shadow: 0 0 34px rgba(139,77,255,.5);
+    }
+
+    .auth-logo i {
+      font-size: 34px;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    h1, h2, h3 {
+      font-family: "Space Grotesk", Inter, sans-serif;
+      letter-spacing: -.035em;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .tiny {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .label {
+      font-size: 12px;
+      color: #777d98;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      font-weight: 900;
+    }
+
+    .profit {
+      color: var(--green);
+    }
+
+    .loss {
+      color: var(--red);
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .between {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .mt-8 { margin-top: 8px; }
+    .mt-12 { margin-top: 12px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-20 { margin-top: 20px; }
+    .mt-24 { margin-top: 24px; }
+
+    .shell {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      position: relative;
+      background: linear-gradient(180deg, rgba(14,7,27,.98), rgba(7,2,15,.98));
+      box-shadow: 0 0 90px rgba(0,0,0,.65);
+      padding-bottom: 92px;
+    }
+
+    .page {
+      display: none;
+      padding: 22px 17px 10px;
+      animation: fade .18s ease;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card, .stat, .item {
+      background: linear-gradient(180deg, rgba(22,12,39,.9), rgba(9,6,20,.92));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .box {
+      background: rgba(9,10,28,.55);
+      border: 1px solid rgba(132,147,180,.22);
+      border-radius: 22px;
+      padding: 16px;
+    }
+
+    .stat {
+      min-height: 112px;
+      border-radius: 24px;
+      padding: 16px 14px;
+    }
+
+    .icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 13px;
+      background: rgba(139,77,255,.18);
+      color: var(--purple2);
+      display: grid;
+      place-items: center;
+      margin-left: auto;
+    }
+
+    .value {
+      font-size: 26px;
+      line-height: 1;
+      font-weight: 900;
+      margin-top: 12px;
+      font-family: "Space Grotesk";
+    }
+
+    .btn {
+      border: 0;
+      color: #fff;
+      border-radius: 18px;
+      padding: 13px 16px;
+      background: rgba(21,25,46,.9);
+      border: 1px solid rgba(135,149,183,.26);
+      font-weight: 850;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 48px;
+    }
+
+    .btn.full {
+      width: 100%;
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #9554ff, #7d35fb);
+      box-shadow: 0 18px 40px rgba(139,77,255,.32);
+      border-color: rgba(205,172,255,.42);
+    }
+
+    .btn.green {
+      border-color: rgba(96,232,173,.4);
+      background: rgba(16,42,35,.65);
+      color: var(--green);
+    }
+
+    .btn.red {
+      border-color: rgba(255,94,131,.42);
+      background: rgba(58,14,29,.58);
+      color: #ff8aa3;
+    }
+
+    .btn.ghost {
+      background: rgba(16,20,38,.7);
+    }
+
+    .btn.small {
+      min-height: 38px;
+      padding: 9px 12px;
+      border-radius: 14px;
+      font-size: 12px;
+    }
+
+    .btn.square {
+      width: 54px;
+      height: 54px;
+      padding: 0;
+      border-radius: 20px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 99px;
+      background: rgba(139,77,255,.18);
+      color: #d5bdff;
+      font-size: 12px;
+      font-weight: 900;
+      border: 1px solid rgba(139,77,255,.25);
+      white-space: nowrap;
+    }
+
+    .pill.green {
+      background: rgba(96,232,173,.12);
+      color: var(--green);
+      border-color: rgba(96,232,173,.2);
+    }
+
+    .pill.red {
+      background: rgba(255,94,131,.12);
+      color: #ff8aa3;
+      border-color: rgba(255,94,131,.2);
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 900;
+      color: #b2b7cb;
+      margin: 0 0 6px 4px;
+      display: block;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      color: #fff;
+      background: rgba(8,10,24,.72);
+      border: 1px solid rgba(139,77,255,.22);
+      border-radius: 18px;
+      outline: none;
+      padding: 13px 14px;
+      margin-bottom: 12px;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .chart-box {
+      height: 130px;
+      border-radius: 22px;
+      border: 1px solid rgba(135,149,183,.24);
+      background: linear-gradient(180deg, rgba(13,15,32,.68), rgba(15,9,31,.7));
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      max-width: 430px;
+      margin: 0 auto;
+      z-index: 70;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      padding: 8px 14px 18px;
+      background: rgba(7,4,14,.92);
+      backdrop-filter: blur(18px);
+      border-top: 1px solid rgba(255,255,255,.07);
+    }
+
+    .bottom-nav button {
+      background: transparent;
+      border: 0;
+      color: #7d839d;
+      display: grid;
+      place-items: center;
+      gap: 5px;
+      padding: 8px 4px 6px;
+      font-weight: 800;
+      font-size: 11px;
+      position: relative;
+    }
+
+    .bottom-nav i {
+      font-size: 21px;
+    }
+
+    .bottom-nav button.active {
+      color: var(--purple2);
+    }
+
+    .bottom-nav button.active::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      width: 34px;
+      height: 3px;
+      border-radius: 10px;
+      background: var(--purple2);
+      box-shadow: 0 0 16px rgba(139,77,255,.9);
+    }
+
+    .floating-add {
+      position: fixed;
+      right: calc(50% - 197px);
+      bottom: 98px;
+      width: 64px;
+      height: 64px;
+      z-index: 65;
+      border: 0;
+      border-radius: 23px;
+      color: #fff;
+      background: linear-gradient(135deg, #9b59ff, #7b34f6);
+      box-shadow: 0 22px 54px rgba(139,77,255,.42);
+      font-size: 27px;
+      display: grid;
+      place-items: center;
+    }
+
+    .segmented {
+      background: rgba(5,5,15,.6);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 6px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .segmented button {
+      border: 0;
+      border-radius: 18px;
+      padding: 15px 10px;
+      color: #d3d5e8;
+      background: transparent;
+      font-weight: 900;
+    }
+
+    .segmented button.active {
+      background: linear-gradient(135deg, #9b59ff, #7b34f6);
+      color: #fff;
+    }
+
+    .trade-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: rgba(96,232,173,.11);
+      color: var(--green);
+      font-size: 20px;
+    }
+
+    .trade-icon.loss {
+      background: rgba(255,94,131,.12);
+      color: var(--red);
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .cal-head {
+      text-align: center;
+      color: #767d98;
+      text-transform: uppercase;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 6px 0;
+    }
+
+    .cal-day {
+      min-height: 58px;
+      border-radius: 11px;
+      background: rgba(16,20,39,.62);
+      padding: 8px 5px;
+      border: 1px solid transparent;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .cal-day.dim {
+      opacity: .25;
+    }
+
+    .cal-day.today {
+      border-color: var(--purple2);
+      box-shadow: 0 0 0 2px rgba(139,77,255,.18);
+    }
+
+    .cal-day.win {
+      background: rgba(24,74,58,.34);
+    }
+
+    .cal-day.loss {
+      background: rgba(83,19,42,.42);
+    }
+
+    .empty {
+      border: 1px dashed rgba(139,77,255,.28);
+      border-radius: 24px;
+      padding: 28px 16px;
+      color: var(--muted);
+      text-align: center;
+      background: rgba(8,9,20,.42);
+    }
+
+    .avatar {
+      width: 88px;
+      height: 88px;
+      border-radius: 32px;
+      background: linear-gradient(145deg, #9b59ff, #6028d9);
+      display: grid;
+      place-items: center;
+      font-size: 40px;
+      box-shadow: 0 0 38px rgba(139,77,255,.42);
+      border: 1px solid rgba(255,255,255,.15);
+      overflow: hidden;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .video {
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(139,77,255,.25);
+      background: rgba(9,10,28,.7);
+    }
+
+    .video iframe {
+      width: 100%;
+      height: 210px;
+      border: 0;
+      display: block;
+    }
+
+    .video-placeholder {
+      height: 190px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 50% 20%, rgba(139,77,255,.5), transparent 35%),
+        linear-gradient(135deg, rgba(20,8,46,.94), rgba(6,8,22,.94));
+    }
+
+    .play {
+      width: 74px;
+      height: 74px;
+      border-radius: 30px;
+      display: grid;
+      place-items: center;
+      background: rgba(139,77,255,.36);
+      border: 1px solid rgba(231,216,255,.32);
+      font-size: 28px;
+      margin: auto;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 150;
+      background: rgba(0,0,0,.72);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .sheet {
+      width: min(430px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      background: linear-gradient(180deg, rgba(19,12,37,.98), rgba(7,4,14,.98));
+      border: 1px solid var(--line2);
+      border-radius: 30px 30px 0 0;
+      box-shadow: 0 -20px 60px rgba(0,0,0,.55);
+      padding: 20px 17px 28px;
+    }
+
+    .toast {
+      position: fixed;
+      left: 14px;
+      right: 14px;
+      bottom: 94px;
+      max-width: 402px;
+      margin: 0 auto;
+      z-index: 200;
+      background: rgba(18,22,42,.96);
+      border: 1px solid var(--line2);
+      border-left: 5px solid var(--purple2);
+      border-radius: 20px;
+      padding: 13px 14px;
+      box-shadow: var(--shadow);
+      font-weight: 700;
+    }
+
+    @media(max-width: 440px) {
+      .floating-add {
+        right: 18px;
+      }
+
+      .grid-3 {
+        gap: 8px;
+      }
+    }
+
+    @media(max-width: 370px) {
+      .grid-2,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <section id="auth" class="auth">
+    <div class="auth-card">
+      <div class="center">
+        <div class="auth-logo">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <h1>Jurnal Trader X</h1>
+        <p class="muted mt-8">
+          Login pakai Google. Data jurnal, akun, setup, dan profile tersimpan per akun Gmail.
+        </p>
+      </div>
+
+      <div class="stack mt-24">
+        <button id="googleBtn" class="btn primary full">
+          <i class="fa-brands fa-google"></i>
+          Login dengan Google
+        </button>
+
+        <button id="demoBtn" class="btn ghost full">
+          <i class="fa-solid fa-eye"></i>
+          Preview Demo Lokal
+        </button>
+      </div>
+
+      <p class="tiny center mt-16">
+        Jalankan via Live Server / Vercel supaya Google Login berjalan stabil.
+      </p>
+    </div>
+  </section>
+
+  <main id="app" class="shell hidden">
+    <section id="homePage" class="page active"></section>
+    <section id="journalPage" class="page"></section>
+    <section id="communityPage" class="page"></section>
+    <section id="setupPage" class="page"></section>
+    <section id="accountPage" class="page"></section>
+
+    <button id="addBtn" class="floating-add">
+      <i class="fa-solid fa-plus"></i>
+    </button>
+
+    <nav class="bottom-nav">
+      <button class="active" data-page="home">
+        <i class="fa-solid fa-border-all"></i>
+        <span>Home</span>
+      </button>
+      <button data-page="journal">
+        <i class="fa-regular fa-book-open"></i>
+        <span>Journal</span>
+      </button>
+      <button data-page="community">
+        <i class="fa-solid fa-people-group"></i>
+        <span>Communities</span>
+      </button>
+      <button data-page="setup">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Trade Setup</span>
+      </button>
+      <button data-page="account">
+        <i class="fa-regular fa-wallet"></i>
+        <span>Accounts</span>
+      </button>
+    </nav>
+  </main>
+
+  <div id="modal" class="modal">
+    <div class="sheet">
+      <div class="between">
+        <h2 id="modalTitle">Modal</h2>
+        <button id="close" class="btn square ghost">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="modalBody" class="mt-16"></div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAaOaW-xMiXQRWgz3Q55VZAL4jFwpdp9kQ",
+      authDomain: "trader-x-academy.firebaseapp.com",
+      projectId: "trader-x-academy",
+      storageBucket: "trader-x-academy.firebasestorage.app",
+      messagingSenderId: "548462658678",
+      appId: "1:548462658678:web:5f78f2f07572f3c758cb57"
+    };
+
+    const STORAGE_KEY = "jurnal_trader_x_local_v1";
+
+    let auth = null;
+    let db = null;
+    let currentUser = null;
+    let stateRef = null;
+    let unsubscribe = null;
+    let appMode = "demo";
+
+    let currentPage = "home";
+    let journalMode = "trades";
+    let calendarMonth = new Date().getMonth();
+    let calendarYear = new Date().getFullYear();
+
+    let equityChart = null;
+    let performanceChart = null;
+
+    const defaultState = {
+      profile: {
+        name: "Trader X",
+        email: "traderxacademy@gmail.com",
+        role: "Trader",
+        photoURL: "",
+        videoTitle: "Update Market Mingguan",
+        videoDesc: "Tambahkan link YouTube untuk video update di halaman Home.",
+        videoUrl: ""
+      },
+      activeAccountId: "acc-1",
+      accounts: [
+        {
+          id: "acc-1",
+          name: "Main Account",
+          starting: 30,
+          deposits: 0,
+          withdrawals: 0,
+          createdAt: new Date().toISOString()
+        }
+      ],
+      trades: [
+        {
+          id: "demo-1",
+          date: new Date(Date.now() - 86400000).toISOString(),
+          pair: "XAUUSD",
+          direction: "LONG",
+          session: "Asian",
+          setup: "scalping",
+          entry: 2320,
+          exit: 2331,
+          lot: 0.01,
+          contract: 100,
+          accountId: "acc-1",
+          note: "Contoh trade profit.",
+          pnl: 11
+        }
+      ],
+      setups: [
+        {
+          id: "setup-1",
+          name: "scalping",
+          category: "GENERAL",
+          type: "Breakout",
+          rules: ["Trend jelas", "Entry setelah konfirmasi candle", "Risk max 1-2%"],
+          favorite: false,
+          createdAt: new Date().toISOString()
+        }
+      ],
+      posts: [
+        {
+          id: "post-1",
+          author: "Trader X",
+          tag: "COMMUNITY TALK",
+          body: "Question: fitur crypto traders perlu ditambah nggak bro?\n- Yes\n- No",
+          likes: 1,
+          comments: 7,
+          saved: false,
+          createdAt: new Date().toISOString()
+        }
+      ]
+    };
+
+    let state = normalizeState();
+
+    function id(name) {
+      return document.getElementById(name);
+    }
+
+    function clone(data) {
+      return JSON.parse(JSON.stringify(data));
+    }
+
+    function normalizeState(data = {}) {
+      return {
+        ...clone(defaultState),
+        ...data,
+        profile: {
+          ...defaultState.profile,
+          ...(data.profile || {})
+        },
+        accounts: data.accounts && data.accounts.length ? data.accounts : clone(defaultState.accounts),
+        trades: data.trades || [],
+        setups: data.setups && data.setups.length ? data.setups : clone(defaultState.setups),
+        posts: data.posts || []
+      };
+    }
+
+    function loadLocal() {
+      try {
+        return normalizeState(JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"));
+      } catch {
+        return normalizeState();
+      }
+    }
+
+    async function saveState() {
+      if (appMode === "cloud" && stateRef) {
+        await stateRef.set({
+          ...clone(state),
+          updatedAtClient: new Date().toISOString()
+        }, { merge: true });
+      } else {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+    }
+
+    function esc(value = "") {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function uid(prefix = "id") {
+      return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function money(n) {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD"
+      }).format(Number(n || 0));
+    }
+
+    function shortMoney(n) {
+      const value = Number(n || 0);
+      return `${value < 0 ? "-" : ""}$${Math.abs(value).toFixed(2)}`;
+    }
+
+    function formatDate(iso) {
+      return new Date(iso).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "short",
+        year: "numeric"
+      });
+    }
+
+    function formatTime(iso) {
+      return new Date(iso).toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function dayKey(iso) {
+      const date = new Date(iso);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    }
+
+    function activeAccount() {
+      return state.accounts.find(a => a.id === state.activeAccountId) || state.accounts[0];
+    }
+
+    function accountTrades(accountId = state.activeAccountId) {
+      return state.trades.filter(t => t.accountId === accountId);
+    }
+
+    function totalPnl(trades = accountTrades()) {
+      return trades.reduce((sum, trade) => sum + Number(trade.pnl || 0), 0);
+    }
+
+    function grossWin(trades = accountTrades()) {
+      return trades.filter(t => Number(t.pnl) > 0).reduce((sum, t) => sum + Number(t.pnl || 0), 0);
+    }
+
+    function grossLoss(trades = accountTrades()) {
+      return trades.filter(t => Number(t.pnl) < 0).reduce((sum, t) => sum + Number(t.pnl || 0), 0);
+    }
+
+    function winRate(trades = accountTrades()) {
+      if (!trades.length) return 0;
+      return trades.filter(t => Number(t.pnl) > 0).length / trades.length * 100;
+    }
+
+    function profitFactor() {
+      const win = grossWin();
+      const loss = Math.abs(grossLoss());
+      if (!win && !loss) return 0;
+      if (win && !loss) return win;
+      return win / loss;
+    }
+
+    function balance() {
+      const acc = activeAccount();
+      return Number(acc.starting || 0) + Number(acc.deposits || 0) - Number(acc.withdrawals || 0) + totalPnl();
+    }
+
+    function calcPnl(direction, entry, exit, lot, contract) {
+      const raw = direction === "SHORT" ? entry - exit : exit - entry;
+      return raw * lot * contract;
+    }
+
+    function groupByDay(trades = accountTrades()) {
+      const map = {};
+      [...trades].sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(trade => {
+        const key = dayKey(trade.date);
+        if (!map[key]) map[key] = [];
+        map[key].push(trade);
+      });
+      return map;
+    }
+
+    function thisWeekPnl() {
+      const now = new Date();
+      const start = new Date(now);
+      start.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+      start.setHours(0,0,0,0);
+
+      const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(label => ({ label, pnl: 0 }));
+
+      accountTrades().forEach(trade => {
+        const date = new Date(trade.date);
+        if (date >= start) {
+          const index = (date.getDay() + 6) % 7;
+          days[index].pnl += Number(trade.pnl || 0);
+        }
+      });
+
+      return days;
+    }
+
+    function monthTrades() {
+      return accountTrades().filter(trade => {
+        const date = new Date(trade.date);
+        return date.getMonth() === calendarMonth && date.getFullYear() === calendarYear;
+      });
+    }
+
+    function monthPnl() {
+      return totalPnl(monthTrades());
+    }
+
+    function bestWorstDays() {
+      const rows = Object.entries(groupByDay()).map(([date, trades]) => ({
+        date,
+        pnl: totalPnl(trades)
+      }));
+
+      if (!rows.length) {
+        return { best: null, worst: null, avgWin: 0, avgLoss: 0 };
+      }
+
+      const best = rows.reduce((a,b) => a.pnl > b.pnl ? a : b);
+      const worst = rows.reduce((a,b) => a.pnl < b.pnl ? a : b);
+      const wins = rows.filter(r => r.pnl > 0);
+      const losses = rows.filter(r => r.pnl < 0);
+
+      return {
+        best,
+        worst,
+        avgWin: wins.length ? wins.reduce((s,r) => s + r.pnl, 0) / wins.length : 0,
+        avgLoss: losses.length ? losses.reduce((s,r) => s + r.pnl, 0) / losses.length : 0
+      };
+    }
+
+    function bestSetup() {
+      const rows = state.setups.map(setup => {
+        const trades = accountTrades().filter(t => String(t.setup || "").toLowerCase() === setup.name.toLowerCase());
+        return {
+          ...setup,
+          trades: trades.length,
+          pnl: totalPnl(trades),
+          wr: winRate(trades)
+        };
+      }).filter(row => row.trades > 0);
+
+      if (!rows.length) return null;
+
+      return rows.sort((a,b) => b.wr - a.wr || b.pnl - a.pnl)[0];
+    }
+
+    function getYoutubeEmbed(url) {
+      if (!url) return "";
+
+      try {
+        const parsed = new URL(url);
+        let videoId = "";
+
+        if (parsed.hostname.includes("youtu.be")) {
+          videoId = parsed.pathname.slice(1);
+        }
+
+        if (parsed.hostname.includes("youtube.com")) {
+          if (parsed.pathname.includes("/embed/")) {
+            videoId = parsed.pathname.split("/embed/")[1].split("/")[0];
+          } else {
+            videoId = parsed.searchParams.get("v") || "";
+          }
+        }
+
+        return videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+      } catch {
+        return url.length === 11 ? `https://www.youtube.com/embed/${url}` : "";
+      }
+    }
+
+    function toast(message) {
+      document.querySelector(".toast")?.remove();
+      const el = document.createElement("div");
+      el.className = "toast";
+      el.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${esc(message)}`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2600);
+    }
+
+    function showModal(title, html) {
+      id("modalTitle").textContent = title;
+      id("modalBody").innerHTML = html;
+      id("modal").classList.add("show");
+    }
+
+    function closeModal() {
+      id("modal").classList.remove("show");
+    }
+
+    function avatarHtml(size = 88) {
+      const photo = state.profile.photoURL;
+      if (photo) {
+        return `<div class="avatar" style="width:${size}px;height:${size}px"><img src="${esc(photo)}" alt="avatar"></div>`;
+      }
+
+      return `<div class="avatar" style="width:${size}px;height:${size}px">🤖</div>`;
+    }
+
+    function renderHome() {
+      const trades = accountTrades();
+      const pnl = totalPnl();
+      const acc = activeAccount();
+      const starting = Number(acc.starting || 0) + Number(acc.deposits || 0) - Number(acc.withdrawals || 0);
+      const returnPct = starting ? pnl / starting * 100 : 0;
+      const bw = bestWorstDays();
+      const bs = bestSetup();
+
+      id("homePage").innerHTML = `
+        <div class="between">
+          <div>
+            <h1 style="font-size:31px;line-height:1.12">Good morning, ${esc(state.profile.name)} 👋</h1>
+            <p class="muted mt-8" style="font-size:16px">Here's your trading overview</p>
+          </div>
+          <button class="btn square ghost" onclick="toast('Belum ada notifikasi baru bro')">
+            <i class="fa-regular fa-bell"></i>
+          </button>
+        </div>
+
+        <div class="card mt-24">
+          <div class="between">
+            <div class="label">Portfolio Value</div>
+            <button class="btn small ghost" onclick="openAccountModal()">Import</button>
+          </div>
+
+          <div style="font-family:'Space Grotesk';font-size:44px;font-weight:900;margin-top:48px">
+            ${money(balance())}
+          </div>
+
+          <div class="${returnPct >= 0 ? "profit" : "loss"} mt-8" style="font-weight:900">
+            <i class="fa-solid fa-arrow-trend-up"></i>
+            ${returnPct >= 0 ? "+" : ""}${returnPct.toFixed(2)}% all time
+          </div>
+
+          <div class="chart-box mt-24">
+            <canvas id="equityChart"></canvas>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="stat">
+            <div class="between">
+              <div class="label">Win Rate</div>
+              <div class="icon"><i class="fa-solid fa-bullseye"></i></div>
+            </div>
+            <div class="value">${winRate().toFixed(0)}%</div>
+            <p class="profit mt-8">▲ vs Last 7 days</p>
+          </div>
+
+          <div class="stat">
+            <div class="between">
+              <div class="label">Trades</div>
+              <div class="icon"><i class="fa-solid fa-chart-column"></i></div>
+            </div>
+            <div class="value">${trades.length}</div>
+            <p class="profit mt-8">▲ logged trades</p>
+          </div>
+
+          <div class="stat">
+            <div class="between">
+              <div class="label">Profit Factor</div>
+              <div class="icon"><i class="fa-regular fa-wallet"></i></div>
+            </div>
+            <div class="value">${profitFactor().toFixed(2)}</div>
+            <p class="${profitFactor() >= 1 ? "profit" : "loss"} mt-8">PF ${profitFactor().toFixed(2)}</p>
+          </div>
+        </div>
+
+        <div class="card mt-12">
+          <div class="between">
+            <h2>Performance</h2>
+            <button class="btn small ghost">
+              <i class="fa-regular fa-calendar"></i>
+              This week
+            </button>
+          </div>
+
+          <div style="height:230px;margin-top:20px">
+            <canvas id="performanceChart"></canvas>
+          </div>
+
+          <div class="box mt-16">
+            <div class="grid-2">
+              <div>
+                <div class="label">Best Day</div>
+                <h3>${bw.best ? formatDate(bw.best.date) : "-"}</h3>
+                <div class="profit">${bw.best ? "+" + shortMoney(Math.max(0, bw.best.pnl)) : "$0.00"}</div>
+              </div>
+
+              <div>
+                <div class="label">Worst Day</div>
+                <h3>${bw.worst ? formatDate(bw.worst.date) : "-"}</h3>
+                <div class="loss">${bw.worst ? shortMoney(bw.worst.pnl) : "$0.00"}</div>
+              </div>
+
+              <div>
+                <div class="label">Avg Win</div>
+                <h3 class="profit">${shortMoney(bw.avgWin)}</h3>
+              </div>
+
+              <div>
+                <div class="label">Avg Loss</div>
+                <h3 class="loss">${shortMoney(bw.avgLoss)}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="between">
+            <div class="row">
+              <div class="icon" style="width:50px;height:50px;border-radius:20px">
+                <i class="fa-solid fa-bullseye"></i>
+              </div>
+              <h2>Trade setup analytics</h2>
+            </div>
+            <button class="btn small ghost" onclick="switchPage('setup')">View all</button>
+          </div>
+
+          <p class="muted mt-20">Track your setups. Measure performance.</p>
+
+          <div class="box mt-20">
+            <div class="grid-3 center">
+              <div>
+                <h2>${state.setups.length}</h2>
+                <p class="muted">Total Setups</p>
+              </div>
+              <div>
+                <h2>${trades.filter(t => t.setup).length}</h2>
+                <p class="muted">Setup Trades</p>
+              </div>
+              <div>
+                <h2>${bs ? esc(bs.name) : "N/A"}</h2>
+                <p class="muted">Best Setup</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="between">
+            <h2>Insights</h2>
+            <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--purple2)"></i>
+          </div>
+          <p class="muted mt-12">${getInsightText()}</p>
+        </div>
+
+        <div class="card">
+          <div class="between">
+            <div>
+              <h2>Update Video</h2>
+              <p class="muted mt-8">${esc(state.profile.videoDesc)}</p>
+            </div>
+            <button class="btn small ghost" onclick="openVideoModal()">Edit</button>
+          </div>
+          ${renderVideo()}
+        </div>
+
+        <button class="btn primary full" style="height:64px;font-size:20px" onclick="openTradeModal()">
+          <i class="fa-solid fa-plus"></i>
+          New Trade
+        </button>
+      `;
+
+      renderEquityChart();
+      renderPerformanceChart();
+    }
+
+    function renderVideo() {
+      const embed = getYoutubeEmbed(state.profile.videoUrl);
+
+      if (embed) {
+        return `
+          <div class="video mt-16">
+            <iframe src="${embed}" title="Update Video" allowfullscreen></iframe>
+            <div style="padding:14px">
+              <h3>${esc(state.profile.videoTitle)}</h3>
+              <p class="tiny">Video update untuk home journal.</p>
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="video mt-16">
+          <div class="video-placeholder">
+            <div class="center">
+              <div class="play"><i class="fa-solid fa-play"></i></div>
+              <h3 class="mt-16">Belum ada video update</h3>
+              <p class="tiny mt-8">Klik Edit untuk tempel link YouTube.</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function getInsightText() {
+      const wr = winRate();
+      const pf = profitFactor();
+
+      if (!accountTrades().length) {
+        return "Belum ada trade. Mulai tambah trade pertama untuk melihat insight performa.";
+      }
+
+      if (wr >= 60 && pf >= 1.5) {
+        return "Performa bagus. Pertahankan setup yang sama dan jangan overtrade.";
+      }
+
+      if (wr < 40) {
+        return "Win rate masih rendah. Review ulang setup entry, sesi trading, dan disiplin cut loss.";
+      }
+
+      if (pf < 1) {
+        return "Profit factor kurang sehat. Coba perbesar RR atau kurangi entry impulsif.";
+      }
+
+      return "Performa cukup stabil. Fokus evaluasi setup yang paling sering profit.";
+    }
+
+    function renderEquityChart() {
+      const canvas = id("equityChart");
+      if (!canvas || !window.Chart) return;
+
+      const acc = activeAccount();
+      let current = Number(acc.starting || 0) + Number(acc.deposits || 0) - Number(acc.withdrawals || 0);
+
+      const sorted = [...accountTrades()].sort((a,b) => new Date(a.date) - new Date(b.date));
+      const labels = ["Start"];
+      const data = [current];
+
+      sorted.forEach((trade, index) => {
+        current += Number(trade.pnl || 0);
+        labels.push(trade.pair || `T${index + 1}`);
+        data.push(current);
+      });
+
+      if (equityChart) equityChart.destroy();
+
+      equityChart = new Chart(canvas.getContext("2d"), {
+        type: "line",
+        data: {
+          labels,
+          datasets: [{
+            data,
+            borderColor: "#9b59ff",
+            backgroundColor: "rgba(139,77,255,.22)",
+            fill: true,
+            tension: .35,
+            borderWidth: 4,
+            pointRadius: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { display: false },
+            y: { display: false }
+          }
+        }
+      });
+    }
+
+    function renderPerformanceChart() {
+      const canvas = id("performanceChart");
+      if (!canvas || !window.Chart) return;
+
+      const rows = thisWeekPnl();
+
+      if (performanceChart) performanceChart.destroy();
+
+      performanceChart = new Chart(canvas.getContext("2d"), {
+        type: "bar",
+        data: {
+          labels: rows.map(r => r.label),
+          datasets: [{
+            data: rows.map(r => r.pnl),
+            backgroundColor: "rgba(139,77,255,.45)",
+            borderColor: "#9b59ff",
+            borderWidth: 1,
+            borderRadius: 10
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: {
+              ticks: { color: "#989db5" },
+              grid: { display: false }
+            },
+            y: {
+              ticks: { color: "#989db5" },
+              grid: { color: "rgba(255,255,255,.09)" }
+            }
+          }
+        }
+      });
+    }
+
+    function renderJournal() {
+      id("journalPage").innerHTML = `
+        <div class="segmented">
+          <button class="${journalMode === "trades" ? "active" : ""}" onclick="journalMode='trades';renderJournal()">Trades</button>
+          <button class="${journalMode === "calendar" ? "active" : ""}" onclick="journalMode='calendar';renderJournal()">Calendar</button>
+        </div>
+        ${journalMode === "trades" ? renderTradesTab() : renderCalendarTab()}
+      `;
+    }
+
+    function renderTradesTab() {
+      const trades = accountTrades();
+      const groups = groupByDay();
+
+      const groupHtml = Object.entries(groups).map(([date, rows]) => {
+        const pnl = totalPnl(rows);
+        return `
+          <div class="box mt-12">
+            <div class="between">
+              <div>
+                <div class="label">Session Day</div>
+                <h3>${formatDate(date)}</h3>
+              </div>
+              <div style="text-align:right">
+                <div class="label">Day P&L</div>
+                <h2 class="${pnl >= 0 ? "profit" : "loss"}">${pnl >= 0 ? "+" : ""}${shortMoney(pnl)}</h2>
+              </div>
+            </div>
+          </div>
+
+          ${rows.map(renderTradeItem).join("")}
+        `;
+      }).join("");
+
+      return `
+        <div class="card">
+          <div class="between">
+            <div>
+              <h1>Journal</h1>
+              <p class="muted mt-8">${trades.length} trades logged</p>
+            </div>
+            <div class="row">
+              <button class="btn small red" onclick="deleteAllTrades()">
+                <i class="fa-regular fa-trash-can"></i>
+                Delete all
+              </button>
+              <button class="btn square ghost" onclick="exportCsv()">
+                <i class="fa-solid fa-list"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        ${trades.length ? groupHtml : `
+          <div class="empty">
+            <i class="fa-regular fa-book-open" style="font-size:38px"></i>
+            <h3 class="mt-12">Belum ada trade</h3>
+            <p class="mt-8">Klik tombol + untuk tambah trade.</p>
+          </div>
+        `}
+      `;
+    }
+
+    function renderTradeItem(trade) {
+      const positive = Number(trade.pnl) >= 0;
+
+      return `
+        <div class="item" onclick="openTradeDetail('${trade.id}')">
+          <div class="between">
+            <div class="row">
+              <div class="trade-icon ${positive ? "" : "loss"}">
+                <i class="fa-solid fa-arrow-trend-${positive ? "up" : "down"}"></i>
+              </div>
+              <div>
+                <h3>
+                  ${esc(trade.pair)}
+                  <span class="pill ${trade.direction === "LONG" ? "green" : "red"}">${esc(trade.direction)}</span>
+                </h3>
+                <p class="muted mt-8">${formatTime(trade.date)} • ${esc(trade.session || "Session")} ${trade.setup ? "• " + esc(trade.setup) : ""}</p>
+              </div>
+            </div>
+            <div class="${positive ? "profit" : "loss"}" style="font-size:20px;font-weight:900">
+              ${positive ? "+" : ""}${shortMoney(trade.pnl)}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCalendarTab() {
+      const date = new Date(calendarYear, calendarMonth, 1);
+      const monthName = date.toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric"
+      });
+
+      const trades = monthTrades();
+      const byDate = {};
+
+      trades.forEach(trade => {
+        const key = dayKey(trade.date);
+        byDate[key] = (byDate[key] || 0) + Number(trade.pnl || 0);
+      });
+
+      const firstDay = date.getDay();
+      const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+      const prevDays = new Date(calendarYear, calendarMonth, 0).getDate();
+
+      const cells = [];
+
+      for (let i = 0; i < firstDay; i++) {
+        cells.push({ day: prevDays - firstDay + i + 1, dim: true });
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const key = `${calendarYear}-${String(calendarMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        cells.push({
+          day,
+          key,
+          pnl: byDate[key] || 0,
+          today: key === dayKey(new Date().toISOString()),
+          dim: false
+        });
+      }
+
+      while (cells.length % 7 !== 0) {
+        cells.push({ day: "", dim: true });
+      }
+
+      return `
+        <div class="label mt-8">Calendar</div>
+
+        <div class="card">
+          <div class="between">
+            <button class="btn square ghost" onclick="moveMonth(-1)">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <h2>${monthName}</h2>
+            <button class="btn square ghost" onclick="moveMonth(1)">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="stat">
+            <div class="label">Monthly P&L</div>
+            <h2 class="${monthPnl() >= 0 ? "profit" : "loss"} mt-8">${monthPnl() >= 0 ? "+" : ""}${shortMoney(monthPnl())}</h2>
+          </div>
+
+          <div class="stat">
+            <div class="label">Win Rate</div>
+            <h2 class="mt-8">${winRate(trades).toFixed(0)}%</h2>
+            <p class="muted">${trades.filter(t => Number(t.pnl) > 0).length}W / ${trades.filter(t => Number(t.pnl) < 0).length}L</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="calendar">
+            ${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(day => `<div class="cal-head">${day}</div>`).join("")}
+            ${cells.map(cell => {
+              const cls = cell.dim ? "dim" : cell.pnl > 0 ? "win" : cell.pnl < 0 ? "loss" : "";
+              return `
+                <div class="cal-day ${cls} ${cell.today ? "today" : ""}">
+                  <span>${cell.day}</span>
+                  ${!cell.dim && cell.pnl ? `<span class="${cell.pnl >= 0 ? "profit" : "loss"}" style="font-size:11px">${cell.pnl >= 0 ? "+" : ""}${shortMoney(cell.pnl)}</span>` : ""}
+                </div>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCommunity() {
+      id("communityPage").innerHTML = `
+        <h1 style="font-size:32px">Communities <span class="pill">DESK</span></h1>
+        <p class="muted mt-12" style="font-size:16px">Learn, share and grow with traders</p>
+
+        <div class="card mt-24">
+          <div class="row">
+            ${avatarHtml(54)}
+            <input id="postInput" placeholder="What's on your mind?" style="margin:0" />
+          </div>
+          <button class="btn primary full mt-12" onclick="addPost()">Post</button>
+        </div>
+
+        ${state.posts.map(post => `
+          <div class="item">
+            <div class="between">
+              <div class="row">
+                <div class="avatar" style="width:52px;height:52px;border-radius:50%;font-size:20px">${esc((post.author || "T").slice(0,2).toUpperCase())}</div>
+                <div>
+                  <h3>${esc(post.author)}</h3>
+                  <p class="muted">${formatDate(post.createdAt)}, ${formatTime(post.createdAt)}</p>
+                </div>
+              </div>
+              <button class="btn square ghost">
+                <i class="fa-solid fa-ellipsis"></i>
+              </button>
+            </div>
+
+            <div class="row mt-16">
+              <span class="pill">${esc(post.tag || "TRADING")}</span>
+              <span class="pill"><i class="fa-regular fa-comment"></i> ${post.comments || 0}</span>
+            </div>
+
+            <p class="mt-16" style="white-space:pre-line;line-height:1.55;font-size:16px">${esc(post.body)}</p>
+
+            <div class="row mt-20">
+              <button class="btn ghost" onclick="toast('Fitur comment tahap berikutnya bro')">Comment</button>
+              <button class="btn ghost" onclick="toggleSavePost('${post.id}')">
+                <i class="fa-regular fa-bookmark"></i>
+                ${post.saved ? "Saved" : "Save"}
+              </button>
+              <button class="btn ghost" onclick="likePost('${post.id}')">
+                <i class="fa-solid fa-up-long"></i>
+                ${post.likes || 0}
+              </button>
+            </div>
+          </div>
+        `).join("")}
+      `;
+    }
+
+    function renderSetup() {
+      const setups = state.setups.map(setup => {
+        const trades = accountTrades().filter(t => String(t.setup || "").toLowerCase() === setup.name.toLowerCase());
+        return {
+          ...setup,
+          trades: trades.length,
+          pnl: totalPnl(trades),
+          wr: winRate(trades)
+        };
+      });
+
+      const best = bestSetup();
+
+      id("setupPage").innerHTML = `
+        <div class="between">
+          <div>
+            <h1 style="font-size:34px">Trade Setups</h1>
+            <p class="muted mt-8" style="font-size:16px">Plan. Track. Improve.</p>
+          </div>
+          <button class="btn primary" onclick="openSetupModal()">
+            <i class="fa-solid fa-plus"></i>
+            New Setup
+          </button>
+        </div>
+
+        <div class="grid-2 mt-24">
+          <div class="stat">
+            <div class="label">Total Setups</div>
+            <div class="value">${state.setups.length}</div>
+          </div>
+
+          <div class="stat">
+            <div class="label">Best Setup</div>
+            <h2 class="mt-16">${best ? esc(best.name) : "N/A"}</h2>
+            <p class="profit mt-8">${best ? best.wr.toFixed(0) + "% WR" : "No data"}</p>
+          </div>
+        </div>
+
+        <div class="mt-24">
+          ${setups.map(setup => `
+            <div class="item">
+              <div class="between">
+                <div>
+                  <h2>${esc(setup.name)}</h2>
+                  <div class="row mt-8">
+                    <span class="pill">${esc(setup.category || "GENERAL")}</span>
+                    <span class="pill">${setup.rules?.length || 0} rules</span>
+                  </div>
+                </div>
+                <button class="btn square ghost" onclick="toggleFavorite('${setup.id}')">
+                  <i class="${setup.favorite ? "fa-solid" : "fa-regular"} fa-star"></i>
+                </button>
+              </div>
+
+              <p class="muted mt-12">${setup.rules?.length ? esc(setup.rules.join(" • ")) : "No checklist items yet."}</p>
+
+              <div class="between mt-20">
+                <div>
+                  <p class="label">Win Rate</p>
+                  <h2 class="${setup.wr >= 50 ? "profit" : "loss"}">${setup.wr.toFixed(0)}%</h2>
+                </div>
+                <div style="text-align:right">
+                  <p class="label">Trades</p>
+                  <h2>${setup.trades}</h2>
+                  <h3 class="${setup.pnl >= 0 ? "profit" : "loss"}">${setup.pnl >= 0 ? "+" : ""}${shortMoney(setup.pnl)}</h3>
+                </div>
+              </div>
+
+              <button class="btn red full mt-16" onclick="deleteSetup('${setup.id}')">
+                <i class="fa-regular fa-trash-can"></i>
+                Delete Setup
+              </button>
+            </div>
+          `).join("")}
+
+          <button class="btn ghost full" style="border-style:dashed;color:var(--purple2)" onclick="openSetupModal()">
+            <i class="fa-solid fa-plus"></i>
+            Create New Setup
+          </button>
+        </div>
+      `;
+    }
+
+    function renderAccount() {
+      const acc = activeAccount();
+
+      id("accountPage").innerHTML = `
+        <h1 style="font-size:32px">Accounts</h1>
+        <p class="muted mt-12" style="font-size:16px">Manage your profile, sync, and trading account.</p>
+
+        <div class="card mt-24">
+          <div class="row">
+            ${avatarHtml(88)}
+            <div style="flex:1">
+              <div class="between">
+                <h2>${esc(state.profile.name)}</h2>
+                <button class="btn square ghost" onclick="openProfileModal()">
+                  <i class="fa-regular fa-pen-to-square"></i>
+                </button>
+              </div>
+              <span class="pill mt-8">${esc(state.profile.role)}</span>
+              <p class="muted mt-12">
+                <i class="fa-regular fa-envelope"></i>
+                ${esc(state.profile.email)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="between mt-24">
+          <h2>Trading accounts</h2>
+          <button class="btn small ghost" onclick="openAccountModal()">Add</button>
+        </div>
+
+        <div class="card mt-16">
+          <label>Active account</label>
+          <select onchange="state.activeAccountId=this.value;saveState();renderAll()">
+            ${state.accounts.map(account => `
+              <option value="${account.id}" ${account.id === state.activeAccountId ? "selected" : ""}>
+                ${esc(account.name)}
+              </option>
+            `).join("")}
+          </select>
+
+          <div class="between">
+            <div>
+              <h2>${esc(acc.name)}</h2>
+              <p class="muted">Visible in totals and journal views</p>
+            </div>
+            <button class="btn square ghost" onclick="openAccountModal('${acc.id}')">
+              <i class="fa-regular fa-pen-to-square"></i>
+            </button>
+          </div>
+
+          <div class="grid-2 mt-20">
+            <div class="box">
+              <div class="label">Starting</div>
+              <h2 class="mt-8">${money(acc.starting)}</h2>
+            </div>
+            <div class="box">
+              <div class="label">Current</div>
+              <h2 class="mt-8">${money(balance())}</h2>
+            </div>
+          </div>
+
+          <div class="grid-2 mt-20">
+            <button class="btn green full" onclick="openDepositModal('deposit')">Deposit</button>
+            <button class="btn red full" onclick="openDepositModal('withdraw')">Withdraw</button>
+          </div>
+        </div>
+
+        <div class="card mt-24">
+          <div class="between">
+            <div>
+              <h2>Cloud sync</h2>
+              <p class="muted">${appMode === "cloud" ? "Firebase cloud active" : "Local demo active"}</p>
+            </div>
+            <span class="pill green">${appMode === "cloud" ? "Cloud" : "Local"}</span>
+          </div>
+
+          <p class="muted mt-20">${esc(state.profile.email)}</p>
+
+          <button class="btn primary full mt-20" onclick="saveState();toast('Data berhasil disimpan')">
+            Force sync now
+          </button>
+
+          <button class="btn ghost full mt-12" onclick="signOutApp()">
+            Sign out
+          </button>
+        </div>
+      `;
+    }
+
+    function renderAll() {
+      renderHome();
+      renderJournal();
+      renderCommunity();
+      renderSetup();
+      renderAccount();
+
+      document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+      id(`${currentPage}Page`).classList.add("active");
+
+      document.querySelectorAll(".bottom-nav button").forEach(button => {
+        button.classList.toggle("active", button.dataset.page === currentPage);
+      });
+
+      id("addBtn").classList.toggle("hidden", !["home", "journal"].includes(currentPage));
+    }
+
+    function switchPage(page) {
+      currentPage = page;
+      renderAll();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function openTradeModal() {
+      showModal("New Trade", `
+        <div class="grid-2">
+          <div>
+            <label>Pair</label>
+            <input id="mPair" value="XAUUSD">
+          </div>
+
+          <div>
+            <label>Direction</label>
+            <select id="mDirection">
+              <option>LONG</option>
+              <option>SHORT</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Entry</label>
+            <input id="mEntry" type="number" step="any">
+          </div>
+
+          <div>
+            <label>Exit</label>
+            <input id="mExit" type="number" step="any">
+          </div>
+
+          <div>
+            <label>Lot</label>
+            <input id="mLot" type="number" step="any" value="0.01">
+          </div>
+
+          <div>
+            <label>Contract</label>
+            <input id="mContract" type="number" step="any" value="100">
+          </div>
+
+          <div>
+            <label>Session</label>
+            <select id="mSession">
+              <option>Asian</option>
+              <option>London</option>
+              <option>New York</option>
+              <option>Overlap</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Account</label>
+            <select id="mAccount">
+              ${state.accounts.map(acc => `<option value="${acc.id}" ${acc.id === state.activeAccountId ? "selected" : ""}>${esc(acc.name)}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+
+        <label>Setup</label>
+        <select id="mSetup">
+          <option value="">Tanpa setup</option>
+          ${state.setups.map(setup => `<option value="${esc(setup.name)}">${esc(setup.name)}</option>`).join("")}
+        </select>
+
+        <label>Date & Time</label>
+        <input id="mDate" type="datetime-local" value="${new Date().toISOString().slice(0,16)}">
+
+        <label>Note</label>
+        <textarea id="mNote" placeholder="Catatan entry, emosi, alasan trade..."></textarea>
+
+        <button class="btn primary full" onclick="saveTradeFromModal()">
+          <i class="fa-solid fa-save"></i>
+          Save Trade
+        </button>
+      `);
+    }
+
+    async function saveTradeFromModal() {
+      const pair = id("mPair").value.trim().toUpperCase();
+      const direction = id("mDirection").value;
+      const entry = Number(id("mEntry").value);
+      const exit = Number(id("mExit").value);
+      const lot = Number(id("mLot").value);
+      const contract = Number(id("mContract").value);
+
+      if (!pair || !Number.isFinite(entry) || !Number.isFinite(exit) || !Number.isFinite(lot) || !Number.isFinite(contract)) {
+        toast("Data trade belum lengkap bro");
+        return;
+      }
+
+      const pnl = calcPnl(direction, entry, exit, lot, contract);
+
+      state.trades.unshift({
+        id: uid("trade"),
+        date: new Date(id("mDate").value).toISOString(),
+        pair,
+        direction,
+        session: id("mSession").value,
+        setup: id("mSetup").value,
+        entry,
+        exit,
+        lot,
+        contract,
+        accountId: id("mAccount").value,
+        note: id("mNote").value,
+        pnl
+      });
+
+      await saveState();
+
+      closeModal();
+      currentPage = "journal";
+      journalMode = "trades";
+      renderAll();
+
+      toast(`Trade tersimpan: ${pnl >= 0 ? "+" : ""}${shortMoney(pnl)}`);
+    }
+
+    function openTradeDetail(tradeId) {
+      const trade = state.trades.find(t => t.id === tradeId);
+      if (!trade) return;
+
+      showModal(`${trade.pair} ${trade.direction}`, `
+        <div class="grid-2">
+          <div class="box">
+            <div class="label">P&L</div>
+            <h2 class="${trade.pnl >= 0 ? "profit" : "loss"} mt-8">${trade.pnl >= 0 ? "+" : ""}${shortMoney(trade.pnl)}</h2>
+          </div>
+
+          <div class="box">
+            <div class="label">Date</div>
+            <h3 class="mt-8">${formatDate(trade.date)}</h3>
+          </div>
+
+          <div class="box">
+            <div class="label">Entry</div>
+            <h3>${trade.entry}</h3>
+          </div>
+
+          <div class="box">
+            <div class="label">Exit</div>
+            <h3>${trade.exit}</h3>
+          </div>
+        </div>
+
+        <div class="box mt-12">
+          <div class="label">Note</div>
+          <p class="muted mt-8">${esc(trade.note || "Tidak ada catatan.")}</p>
+        </div>
+
+        <button class="btn red full mt-16" onclick="deleteTrade('${trade.id}')">
+          <i class="fa-regular fa-trash-can"></i>
+          Delete Trade
+        </button>
+      `);
+    }
+
+    async function deleteTrade(tradeId) {
+      state.trades = state.trades.filter(t => t.id !== tradeId);
+      await saveState();
+      closeModal();
+      renderAll();
+      toast("Trade dihapus");
+    }
+
+    async function deleteAllTrades() {
+      if (!confirm("Hapus semua trade di akun aktif?")) return;
+
+      state.trades = state.trades.filter(t => t.accountId !== state.activeAccountId);
+      await saveState();
+      renderAll();
+      toast("Semua trade dihapus");
+    }
+
+    function moveMonth(delta) {
+      calendarMonth += delta;
+
+      if (calendarMonth < 0) {
+        calendarMonth = 11;
+        calendarYear--;
+      }
+
+      if (calendarMonth > 11) {
+        calendarMonth = 0;
+        calendarYear++;
+      }
+
+      renderJournal();
+    }
+
+    function openVideoModal() {
+      showModal("Update Video", `
+        <label>Judul video</label>
+        <input id="vTitle" value="${esc(state.profile.videoTitle)}">
+
+        <label>Deskripsi</label>
+        <textarea id="vDesc">${esc(state.profile.videoDesc)}</textarea>
+
+        <label>Link YouTube</label>
+        <input id="vUrl" placeholder="https://www.youtube.com/watch?v=..." value="${esc(state.profile.videoUrl)}">
+
+        <button class="btn primary full" onclick="saveVideo()">
+          <i class="fa-solid fa-save"></i>
+          Save Video
+        </button>
+      `);
+    }
+
+    async function saveVideo() {
+      state.profile.videoTitle = id("vTitle").value.trim() || "Update Market";
+      state.profile.videoDesc = id("vDesc").value.trim() || "Video update.";
+      state.profile.videoUrl = id("vUrl").value.trim();
+
+      await saveState();
+
+      closeModal();
+      renderAll();
+      toast("Video update disimpan");
+    }
+
+    function openSetupModal() {
+      showModal("New Setup", `
+        <label>Nama setup</label>
+        <input id="sName" placeholder="scalping">
+
+        <label>Category</label>
+        <input id="sCategory" value="GENERAL">
+
+        <label>Type</label>
+        <input id="sType" value="Breakout">
+
+        <label>Checklist rules</label>
+        <textarea id="sRules" placeholder="1 rule per baris"></textarea>
+
+        <button class="btn primary full" onclick="saveSetup()">
+          <i class="fa-solid fa-save"></i>
+          Save Setup
+        </button>
+      `);
+    }
+
+    async function saveSetup() {
+      const name = id("sName").value.trim();
+
+      if (!name) {
+        toast("Nama setup wajib diisi");
+        return;
+      }
+
+      state.setups.unshift({
+        id: uid("setup"),
+        name,
+        category: id("sCategory").value.trim() || "GENERAL",
+        type: id("sType").value.trim() || "General",
+        rules: id("sRules").value.split("\n").map(x => x.trim()).filter(Boolean),
+        favorite: false,
+        createdAt: new Date().toISOString()
+      });
+
+      await saveState();
+
+      closeModal();
+      renderAll();
+      toast("Setup disimpan");
+    }
+
+    async function deleteSetup(setupId) {
+      if (!confirm("Hapus setup ini?")) return;
+
+      state.setups = state.setups.filter(s => s.id !== setupId);
+      await saveState();
+
+      renderAll();
+      toast("Setup dihapus");
+    }
+
+    async function toggleFavorite(setupId) {
+      state.setups = state.setups.map(setup => setup.id === setupId ? {
+        ...setup,
+        favorite: !setup.favorite
+      } : setup);
+
+      await saveState();
+      renderAll();
+    }
+
+    function openAccountModal(accountId = null) {
+      const acc = accountId ? state.accounts.find(a => a.id === accountId) : null;
+
+      showModal(acc ? "Edit Account" : "Add Account", `
+        <label>Account name</label>
+        <input id="aName" placeholder="Main Account" value="${esc(acc?.name || "")}">
+
+        <label>Starting Balance</label>
+        <input id="aStarting" type="number" step="any" value="${Number(acc?.starting || 30)}">
+
+        <button class="btn primary full" onclick="saveAccount('${accountId || ""}')">
+          Save Account
+        </button>
+      `);
+    }
+
+    async function saveAccount(accountId) {
+      const name = id("aName").value.trim();
+      const starting = Number(id("aStarting").value);
+
+      if (!name || !Number.isFinite(starting)) {
+        toast("Data account belum valid");
+        return;
+      }
+
+      if (accountId) {
+        state.accounts = state.accounts.map(acc => acc.id === accountId ? {
+          ...acc,
+          name,
+          starting
+        } : acc);
+      } else {
+        const newId = uid("acc");
+        state.accounts.push({
+          id: newId,
+          name,
+          starting,
+          deposits: 0,
+          withdrawals: 0,
+          createdAt: new Date().toISOString()
+        });
+        state.activeAccountId = newId;
+      }
+
+      await saveState();
+
+      closeModal();
+      renderAll();
+      toast("Account disimpan");
+    }
+
+    function openDepositModal(type) {
+      showModal(type === "deposit" ? "Deposit" : "Withdraw", `
+        <label>Amount</label>
+        <input id="depositAmount" type="number" step="any" placeholder="100">
+
+        <button class="btn ${type === "deposit" ? "green" : "red"} full" onclick="saveDeposit('${type}')">
+          ${type === "deposit" ? "Deposit" : "Withdraw"}
+        </button>
+      `);
+    }
+
+    async function saveDeposit(type) {
+      const amount = Number(id("depositAmount").value);
+
+      if (!Number.isFinite(amount) || amount <= 0) {
+        toast("Amount belum valid");
+        return;
+      }
+
+      state.accounts = state.accounts.map(acc => {
+        if (acc.id !== state.activeAccountId) return acc;
+
+        if (type === "deposit") {
+          return {
+            ...acc,
+            deposits: Number(acc.deposits || 0) + amount
+          };
+        }
+
+        return {
+          ...acc,
+          withdrawals: Number(acc.withdrawals || 0) + amount
+        };
+      });
+
+      await saveState();
+
+      closeModal();
+      renderAll();
+      toast(`${type === "deposit" ? "Deposit" : "Withdraw"} tersimpan`);
+    }
+
+    function openProfileModal() {
+      showModal("Edit Profile", `
+        <label>Name</label>
+        <input id="pName" value="${esc(state.profile.name)}">
+
+        <label>Email</label>
+        <input id="pEmail" value="${esc(state.profile.email)}">
+
+        <label>Role</label>
+        <input id="pRole" value="${esc(state.profile.role)}">
+
+        <button class="btn primary full" onclick="saveProfile()">
+          Save Profile
+        </button>
+      `);
+    }
+
+    async function saveProfile() {
+      state.profile.name = id("pName").value.trim() || "Trader X";
+      state.profile.email = id("pEmail").value.trim() || "";
+      state.profile.role = id("pRole").value.trim() || "Trader";
+
+      await saveState();
+
+      closeModal();
+      renderAll();
+      toast("Profile disimpan");
+    }
+
+    async function addPost() {
+      const body = id("postInput").value.trim();
+
+      if (!body) {
+        toast("Isi post dulu bro");
+        return;
+      }
+
+      state.posts.unshift({
+        id: uid("post"),
+        author: state.profile.name,
+        tag: "TRADING",
+        body,
+        likes: 0,
+        comments: 0,
+        saved: false,
+        createdAt: new Date().toISOString()
+      });
+
+      await saveState();
+
+      renderCommunity();
+      toast("Post terkirim");
+    }
+
+    async function likePost(postId) {
+      state.posts = state.posts.map(post => post.id === postId ? {
+        ...post,
+        likes: Number(post.likes || 0) + 1
+      } : post);
+
+      await saveState();
+      renderCommunity();
+    }
+
+    async function toggleSavePost(postId) {
+      state.posts = state.posts.map(post => post.id === postId ? {
+        ...post,
+        saved: !post.saved
+      } : post);
+
+      await saveState();
+      renderCommunity();
+    }
+
+    function exportCsv() {
+      const trades = accountTrades();
+
+      if (!trades.length) {
+        toast("Belum ada trade untuk export");
+        return;
+      }
+
+      const headers = ["Date", "Pair", "Direction", "Session", "Setup", "Entry", "Exit", "Lot", "Contract", "PnL", "Note"];
+
+      const rows = trades.map(t => [
+        t.date,
+        t.pair,
+        t.direction,
+        t.session,
+        t.setup,
+        t.entry,
+        t.exit,
+        t.lot,
+        t.contract,
+        t.pnl,
+        t.note || ""
+      ]);
+
+      const csv = [headers, ...rows]
+        .map(row => row.map(value => `"${String(value ?? "").replaceAll('"','""')}"`).join(","))
+        .join("\n");
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+
+      a.href = url;
+      a.download = `jurnal-trader-x-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+
+      URL.revokeObjectURL(url);
+    }
+
+    function showApp() {
+      id("auth").classList.add("hidden");
+      id("app").classList.remove("hidden");
+      renderAll();
+    }
+
+    function showAuth() {
+      id("app").classList.add("hidden");
+      id("auth").classList.remove("hidden");
+    }
+
+    function bootDemo() {
+      appMode = "demo";
+      currentUser = {
+        uid: "demo",
+        displayName: "Demo Trader",
+        email: "demo@traderx.com"
+      };
+
+      stateRef = null;
+
+      if (unsubscribe) unsubscribe();
+
+      state = loadLocal();
+      showApp();
+      toast("Mode demo aktif. Data tersimpan lokal di browser.");
+    }
+
+    function loginGoogle() {
+      try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: "select_account" });
+
+        auth.signInWithPopup(provider).catch(error => {
+          if (error.code === "auth/popup-blocked" || error.code === "auth/popup-closed-by-user") {
+            auth.signInWithRedirect(provider);
+          } else {
+            console.error(error);
+            toast(`Google login gagal: ${error.code || error.message}`);
+          }
+        });
+      } catch (error) {
+        console.error(error);
+        toast(`Firebase belum siap: ${error.message}`);
+      }
+    }
+
+    async function bootCloud(user) {
+      appMode = "cloud";
+      currentUser = user;
+
+      stateRef = db
+        .collection("users")
+        .doc(user.uid)
+        .collection("journalApp")
+        .doc("state");
+
+      const snapshot = await stateRef.get();
+
+      if (!snapshot.exists) {
+        state = normalizeState();
+        state.profile.name = user.displayName || state.profile.name;
+        state.profile.email = user.email || state.profile.email;
+        state.profile.photoURL = user.photoURL || "";
+
+        await stateRef.set({
+          ...clone(state),
+          createdAtClient: new Date().toISOString()
+        }, { merge: true });
+      } else {
+        state = normalizeState(snapshot.data());
+        state.profile.email = user.email || state.profile.email;
+        state.profile.name = state.profile.name || user.displayName || "Trader X";
+        state.profile.photoURL = user.photoURL || state.profile.photoURL || "";
+
+        await stateRef.set({
+          profile: state.profile,
+          lastLoginAtClient: new Date().toISOString()
+        }, { merge: true });
+      }
+
+      if (unsubscribe) unsubscribe();
+
+      unsubscribe = stateRef.onSnapshot(doc => {
+        if (doc.exists) {
+          state = normalizeState(doc.data());
+          showApp();
+        }
+      });
+
+      showApp();
+      toast(`Cloud sync aktif untuk ${user.email || "akun Google"}`);
+    }
+
+    async function signOutApp() {
+      try {
+        if (appMode === "cloud" && auth) {
+          await auth.signOut();
+        }
+
+        if (unsubscribe) unsubscribe();
+
+        currentUser = null;
+        stateRef = null;
+        showAuth();
+        toast("Sign out berhasil");
+      } catch (error) {
+        toast(`Sign out gagal: ${error.message}`);
+      }
+    }
+
+    function initFirebase() {
+      try {
+        firebase.initializeApp(firebaseConfig);
+        auth = firebase.auth();
+        db = firebase.firestore();
+
+        auth.onAuthStateChanged(user => {
+          if (user) {
+            bootCloud(user).catch(error => {
+              console.error(error);
+              toast(`Gagal load cloud: ${error.code || error.message}`);
+              showAuth();
+            });
+          } else {
+            showAuth();
+          }
+        });
+      } catch (error) {
+        console.error(error);
+        toast(`Firebase config error: ${error.message}`);
+        showAuth();
+      }
+    }
+
+    document.querySelectorAll(".bottom-nav button").forEach(button => {
+      button.addEventListener("click", () => switchPage(button.dataset.page));
+    });
+
+    id("addBtn").addEventListener("click", openTradeModal);
+    id("close").addEventListener("click", closeModal);
+
+    id("modal").addEventListener("click", event => {
+      if (event.target.id === "modal") closeModal();
+    });
+
+    id("demoBtn").addEventListener("click", bootDemo);
+    id("googleBtn").addEventListener("click", loginGoogle);
+
+    initFirebase();
+  </script>
+</body>
+</html>
