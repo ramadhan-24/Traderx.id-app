@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Trader X · Aurora Pro</title>
+    <title>Trader X · Final</title>
+
     <!-- Meta untuk sharing -->
     <meta property="og:title" content="Trader X Academy — Next-Gen Trading" />
     <meta property="og:description" content="Edukasi trading berbasis price action & teknikal. Signal akurat, komunitas solid." />
     <meta property="og:image" content="https://via.placeholder.com/1200x630/0b0e14/fbbf24?text=Trader+X" />
-    <meta property="og:url" content="https://trader-x.vercel.app" />
+    <meta property="og:url" content="https://traderx-id-app.vercel.app" />
     <meta name="twitter:card" content="summary_large_image" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
@@ -331,7 +332,7 @@
         .stats-detail .item .val.green { color: #4ade80; }
         .stats-detail .item .val.blue { color: #60a5fa; }
 
-        /* ===== GRID LAYANAN (SEMUA JADI LINK) ===== */
+        /* ===== GRID LAYANAN (SEMUA LINK) ===== */
         .grid-service {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -391,7 +392,7 @@
             50% { transform: scale(1.08); }
         }
 
-        /* ===== SIGNAL CARD ===== */
+        /* ===== SIGNAL CARD (RAPI) ===== */
         .signal-card {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -408,40 +409,56 @@
             align-items: center;
         }
         .signal-left .tag {
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             text-transform: uppercase;
             letter-spacing: 0.8px;
             color: #64748b;
             font-weight: 700;
+            margin-bottom: 4px;
         }
-        .signal-left .pair {
+        .signal-pair {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .signal-pair .pair {
             font-weight: 800;
-            font-size: 1.4rem;
+            font-size: 1.1rem;
             color: #f1f5f9;
         }
-        .signal-left .price {
-            color: #4ade80;
+        .signal-pair .price {
+            color: #f8fafc;
             font-weight: 700;
-            font-size: 1.2rem;
-            margin-left: 8px;
+            font-size: 1.1rem;
         }
-        .signal-right .change {
-            background: rgba(74, 222, 128, 0.08);
-            border: 1px solid rgba(74, 222, 128, 0.12);
-            padding: 0.2rem 1rem;
-            border-radius: 40px;
+        .signal-pair .change {
             font-weight: 700;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
+            padding: 0.1rem 0.8rem;
+            border-radius: 40px;
+            background: rgba(248, 113, 113, 0.08);
+            border: 1px solid rgba(248, 113, 113, 0.12);
+            color: #f87171;
+        }
+        .signal-pair .change.up {
             color: #4ade80;
+            background: rgba(74, 222, 128, 0.08);
+            border-color: rgba(74, 222, 128, 0.12);
+        }
+        .signal-pair .change.down {
+            color: #f87171;
+            background: rgba(248, 113, 113, 0.08);
+            border-color: rgba(248, 113, 113, 0.12);
         }
         .signal-strength {
-            margin-top: 12px;
+            margin-top: 14px;
             display: flex;
             align-items: center;
             gap: 12px;
         }
         .signal-strength .label {
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             font-weight: 700;
             color: #94a3b8;
             text-transform: uppercase;
@@ -469,7 +486,7 @@
             flex-shrink: 0;
         }
 
-        /* ===== CTA (tombol link) ===== */
+        /* ===== CTA (LINK) ===== */
         .cta-group {
             display: flex;
             flex-direction: column;
@@ -570,7 +587,7 @@
             border-color: rgba(0, 240, 255, 0.2);
         }
 
-        /* ===== BOTTOM DOCK ===== */
+        /* ===== BOTTOM DOCK (SEMUA LINK) ===== */
         .bottom-dock {
             display: flex;
             justify-content: space-between;
@@ -584,17 +601,18 @@
         .dock-icons {
             display: flex;
             gap: 1.6rem;
-            color: #64748b;
             font-size: 1.2rem;
         }
-        .dock-icons i {
+        .dock-link {
+            color: #64748b;
+            text-decoration: none;
             transition: 0.2s;
-            cursor: default;
         }
-        .dock-icons i:hover {
+        .dock-link:hover {
             color: #fbbf24;
+            transform: translateY(-2px);
         }
-        .dock-icons i.active {
+        .dock-link.active {
             color: #fbbf24;
         }
         .dock-version {
@@ -661,6 +679,8 @@
         .fade-item:nth-child(6) { animation-delay: 0.30s; }
         .fade-item:nth-child(7) { animation-delay: 0.35s; }
         .fade-item:nth-child(8) { animation-delay: 0.40s; }
+        .fade-item:nth-child(9) { animation-delay: 0.45s; }
+        .fade-item:nth-child(10) { animation-delay: 0.50s; }
 
         @keyframes fadeUp {
             to { opacity: 1; transform: translateY(0); }
@@ -674,7 +694,9 @@
             .gauge-wrap svg { width: 65px; height: 65px; }
             .gauge-center { font-size: 1rem; }
             .stats-detail .item { font-size: 0.65rem; }
-            .signal-left .pair { font-size: 1.1rem; }
+            .signal-pair .pair { font-size: 0.95rem; }
+            .signal-pair .price { font-size: 0.95rem; }
+            .signal-pair .change { font-size: 0.65rem; }
         }
     </style>
 </head>
@@ -690,7 +712,7 @@
     <div class="main-wrap">
         <div class="container">
 
-            <!-- NAV -->
+            <!-- ===== NAV ===== -->
             <div class="nav fade-item">
                 <div class="logo"><i class="fas fa-bolt"></i> Trader<span style="-webkit-text-fill-color:initial;color:#f8fafc;">X</span></div>
                 <div class="nav-actions">
@@ -700,7 +722,7 @@
                 </div>
             </div>
 
-            <!-- HERO -->
+            <!-- ===== HERO ===== -->
             <div class="hero fade-item">
                 <div class="live-badge">
                     <span class="dot"></span> Live Market
@@ -709,7 +731,7 @@
                 <p>Price action & teknikal pro — eksekusi cerdas, profit konsisten.</p>
             </div>
 
-            <!-- STATS + GAUGE -->
+            <!-- ===== STATS ===== -->
             <div class="stats-row fade-item">
                 <div class="gauge-wrap">
                     <svg viewBox="0 0 80 80">
@@ -722,9 +744,7 @@
                         <circle class="bg-circle" cx="40" cy="40" r="36" />
                         <circle class="progress-circle" id="gaugeCircle" cx="40" cy="40" r="36" />
                     </svg>
-                    <div class="gauge-center">
-                        69<small>%</small>
-                    </div>
+                    <div class="gauge-center">69<small>%</small></div>
                 </div>
                 <div class="stats-detail">
                     <div class="item">Balance <span class="val green" id="balanceNum">Rp 95.6 Jt</span></div>
@@ -735,25 +755,21 @@
 
             <!-- ===== GRID LAYANAN (SEMUA LINK) ===== -->
             <div class="grid-service">
-                <!-- Jurnal App -->
                 <a href="https://cdx-id.vercel.app/" target="_blank" class="s-card-link fade-item">
                     <span class="icon"><i class="fas fa-pen-fancy"></i></span>
                     <div class="title">Jurnal App</div>
                     <div class="sub">IDR 850K</div>
                 </a>
-                <!-- Join VIP -->
                 <a href="https://t.me/+6285746639477" target="_blank" class="s-card-link prime fade-item">
                     <span class="icon"><i class="fas fa-crown"></i></span>
                     <div class="title">Join VIP</div>
                     <div class="sub">Akses Unlimited</div>
                 </a>
-                <!-- Komunitas -->
                 <a href="https://discord.gg/db686rhZp" target="_blank" class="s-card-link fade-item">
                     <span class="icon"><i class="fas fa-comments"></i></span>
                     <div class="title">Komunitas</div>
                     <div class="sub">Discord Free</div>
                 </a>
-                <!-- Private Signal -->
                 <a href="https://t.me/+6285746639477?text=Halo%20gua%20mau%20join%20Private%20Signal%20Trader%20X%20Academy" target="_blank" class="s-card-link fade-item">
                     <span class="icon"><i class="fas fa-broadcast-tower"></i></span>
                     <div class="title">Private Signal</div>
@@ -761,18 +777,19 @@
                 </a>
             </div>
 
-            <!-- SIGNAL CARD -->
+            <!-- ===== SIGNAL CARD (RAPI) ===== -->
             <div class="signal-card fade-item">
                 <div class="signal-top">
                     <div class="signal-left">
-                        <div class="tag"><i class="fas fa-wave-square" style="color:#4ade80;margin-right:4px;"></i> Live Signal</div>
-                        <div>
-                            <span class="pair">XAU/USD</span>
-                            <span class="price" id="livePrice">Rp 89.405.000</span>
+                        <div class="tag">
+                            <i class="fas fa-circle" style="color:#4ade80;font-size:0.4rem;margin-right:4px;"></i>
+                            LIVE SIGNAL
                         </div>
-                    </div>
-                    <div class="signal-right">
-                        <span class="change" id="priceChange"><i class="fas fa-arrow-up"></i> +2.4%</span>
+                        <div class="signal-pair">
+                            <span class="pair">XAU/USD</span>
+                            <span class="price" id="livePrice">Rp 89.402.044</span>
+                            <span class="change down" id="priceChange"><i class="fas fa-arrow-down"></i> -0.00%</span>
+                        </div>
                     </div>
                 </div>
                 <div class="signal-strength">
@@ -786,36 +803,34 @@
 
             <!-- ===== CTA (LINK) ===== -->
             <div class="cta-group fade-item">
-                <!-- Join Membership (ganti href) -->
                 <a href="https://cdx-projek.vercel.app/" target="_blank" class="btn-prime">
                     <i class="fas fa-rocket"></i> Join Membership (Berbayar)
                 </a>
-                <!-- Telegram Resmi (ganti href) -->
                 <a href="https://t.me/Condexs" target="_blank" class="btn-secondary">
                     <i class="fab fa-telegram-plane"></i> Telegram Resmi
                 </a>
             </div>
 
-            <!-- BROKER (link) -->
+            <!-- ===== BROKER ===== -->
             <div class="broker-chip fade-item">
                 <span><i class="fas fa-landmark"></i> BROKER SEMI INTERBANK</span>
                 <a href="https://vigco.co/la-s1com-inv/id/LAq394j2" target="_blank" class="chip-action"><i class="fas fa-chevron-right"></i> KLIK</a>
             </div>
 
-            <!-- BOTTOM DOCK -->
+            <!-- ===== BOTTOM DOCK (SEMUA LINK) ===== -->
             <div class="bottom-dock fade-item">
                 <div class="dock-icons">
-                    <i class="fas fa-home active"></i>
-                    <i class="fas fa-chart-pie"></i>
-                    <i class="fas fa-users"></i>
-                    <i class="fas fa-user-circle"></i>
+                    <a href="https://traderx-id-app.vercel.app/" target="_blank" class="dock-link active"><i class="fas fa-home"></i></a>
+                    <a href="#" target="_blank" class="dock-link"><i class="fas fa-chart-pie"></i></a>
+                    <a href="https://discord.gg/db686rhZp" target="_blank" class="dock-link"><i class="fas fa-users"></i></a>
+                    <a href="#" target="_blank" class="dock-link"><i class="fas fa-user-circle"></i></a>
                 </div>
                 <div class="dock-version">
                     <i class="fas fa-circle"></i> v4.0
                 </div>
             </div>
 
-            <!-- ===== FOOTER URL ===== -->
+            <!-- ===== FOOTER ===== -->
             <div class="footer-url fade-item">
                 <span>🔗 <span id="siteUrl">traderx-id-app.vercel.app</span></span>
                 <button class="btn-copy" id="copyBtn"><i class="fas fa-copy"></i> Salin</button>
@@ -841,23 +856,27 @@
             document.getElementById('strengthFill').style.width = '78%';
         }, 600);
 
-        // ===== HARGA UPDATER =====
+        // ===== HARGA UPDATER (RAPI) =====
         const priceEl = document.getElementById('livePrice');
         const changeEl = document.getElementById('priceChange');
-        let basePrice = 89405000;
+        let basePrice = 89402044;
+
         setInterval(() => {
-            const change = (Math.random() * 3000) - 1500;
+            const change = (Math.random() * 1000) - 500;
             basePrice += change;
-            if (basePrice < 85000000) basePrice = 85000000;
-            if (basePrice > 94000000) basePrice = 94000000;
+            if (basePrice < 88000000) basePrice = 88000000;
+            if (basePrice > 91000000) basePrice = 91000000;
+
             priceEl.textContent = 'Rp ' + basePrice.toLocaleString('id-ID');
+
             const isUp = change >= 0;
             const percentChange = ((change / basePrice) * 100).toFixed(2);
-            changeEl.innerHTML = `<i class="fas fa-arrow-${isUp ? 'up' : 'down'}"></i> ${isUp ? '+' : ''}${percentChange}%`;
-            changeEl.style.color = isUp ? '#4ade80' : '#f87171';
-            changeEl.style.background = isUp ? 'rgba(74,222,128,0.08)' : 'rgba(248,113,113,0.08)';
-            changeEl.style.borderColor = isUp ? 'rgba(74,222,128,0.12)' : 'rgba(248,113,113,0.12)';
-        }, 3500);
+            const arrow = isUp ? 'fa-arrow-up' : 'fa-arrow-down';
+            const sign = isUp ? '+' : '';
+
+            changeEl.innerHTML = `<i class="fas ${arrow}"></i> ${sign}${percentChange}%`;
+            changeEl.className = `change ${isUp ? 'up' : 'down'}`;
+        }, 3000);
 
         // ===== TRADER COUNTER =====
         let traderCount = 1286;
@@ -889,7 +908,7 @@
             });
         });
 
-        console.log('🌌 Trader X · Semua layanan sudah link!');
+        console.log('🚀 Trader X · Final dengan semua link disamain!');
     </script>
 </body>
 </html>
