@@ -1,1146 +1,951 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Trader X Academy | Google Login + Cloud Storage</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Trader X · Titanium</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #060a12;
+            padding: 1rem;
+            font-family: 'Inter', -apple-system, sans-serif;
+            /* Grid background + aurora */
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255, 255, 255, 0.02) 60px),
+                repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255, 255, 255, 0.02) 60px),
+                radial-gradient(circle at 20% 30%, rgba(0, 240, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
+            background-blend-mode: overlay;
+        }
 
-  <style>
-    :root {
-      --bg: #050814;
-      --bg2: #091020;
-      --card: rgba(13, 21, 38, 0.84);
-      --card2: rgba(18, 29, 52, 0.92);
-      --line: rgba(69, 135, 255, .28);
-      --line2: rgba(69, 135, 255, .52);
-      --blue: #2f7bff;
-      --blue2: #00c2ff;
-      --green: #00e6b2;
-      --red: #ff4d6d;
-      --yellow: #ffcf5a;
-      --text: #eef5ff;
-      --muted: #93a6c8;
-      --muted2: #64748b;
-      --shadow: 0 22px 54px rgba(0,0,0,.48);
-      --radius: 28px;
-    }
+        /* ----- TICKER (Harga berjalan) ----- */
+        .ticker-wrap {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 0.4rem 0;
+            z-index: 999;
+            white-space: nowrap;
+        }
+        .ticker-content {
+            display: inline-block;
+            animation: tickerScroll 25s linear infinite;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+        }
+        .ticker-content span {
+            margin: 0 1.5rem;
+        }
+        .ticker-content i {
+            margin-right: 4px;
+        }
+        .ticker-content .up {
+            color: #4ade80;
+        }
+        .ticker-content .down {
+            color: #f87171;
+        }
+        @keyframes tickerScroll {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      min-height: 100vh;
-      background:
-        radial-gradient(circle at 20% -5%, rgba(47,123,255,.23), transparent 34%),
-        radial-gradient(circle at 85% 10%, rgba(0,230,178,.08), transparent 24%),
-        radial-gradient(circle at 50% 110%, rgba(47,123,255,.18), transparent 35%),
-        #030712;
-      color: var(--text);
-      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
-      overflow-x: hidden;
-    }
-    button, input, select, textarea { font: inherit; }
-    button { cursor: pointer; }
-    ::-webkit-scrollbar { width: 4px; height: 4px; }
-    ::-webkit-scrollbar-track { background: #0b1222; }
-    ::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 999px; }
+        /* ----- MAIN WRAPPER (dengan padding top buat ticker) ----- */
+        .main-wrap {
+            width: 100%;
+            max-width: 420px;
+            margin-top: 2.8rem;
+            perspective: 1200px;
+        }
 
-    .hidden { display: none !important; }
-    .app-shell, .auth-shell { max-width: 520px; margin: 0 auto; min-height: 100vh; position: relative; }
-    .auth-shell {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-    .auth-card {
-      width: 100%;
-      border-radius: 38px;
-      padding: 28px;
-      background: linear-gradient(180deg, rgba(18,29,52,.92), rgba(7,12,24,.96));
-      border: 1px solid var(--line2);
-      box-shadow: var(--shadow);
-      position: relative;
-      overflow: hidden;
-    }
-    .auth-card::before, .card::before {
-      content: "";
-      position: absolute;
-      inset: -1px;
-      background: linear-gradient(120deg, rgba(47,123,255,.25), transparent 34%, rgba(0,230,178,.09));
-      pointer-events: none;
-      opacity: .6;
-    }
-    .auth-logo {
-      width: 78px; height: 78px;
-      border-radius: 26px;
-      display: grid; place-items: center;
-      margin: 0 auto 16px;
-      background: linear-gradient(145deg, #102653, #061427);
-      border: 1px solid var(--line2);
-      box-shadow: 0 0 28px rgba(47,123,255,.32);
-      position: relative;
-      z-index: 1;
-    }
-    .auth-logo i { font-size: 34px; color: var(--blue2); }
-    h1, h2, h3, h4 { font-family: "Space Grotesk", Inter, sans-serif; letter-spacing: -.02em; }
-    .gradient-text {
-      background: linear-gradient(135deg, #fff, #62a0ff 55%, #00e6b2);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    .muted { color: var(--muted); }
-    .tiny { font-size: 12px; color: var(--muted); line-height: 1.55; }
-    .center { text-align: center; }
-    .stack { display: grid; gap: 12px; }
-    .row { display: flex; align-items: center; gap: 10px; }
-    .between { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-    .mt-8 { margin-top: 8px; } .mt-12 { margin-top: 12px; } .mt-16 { margin-top: 16px; } .mt-20 { margin-top: 20px; }
+        /* ----- CONTAINER UTAMA ----- */
+        .container {
+            background: rgba(12, 20, 30, 0.7);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-radius: 48px;
+            padding: 1.8rem 1.5rem 1.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.1s ease;
+            transform-style: preserve-3d;
+        }
 
-    .btn {
-      border: 0;
-      border-radius: 999px;
-      padding: 13px 16px;
-      color: white;
-      background: rgba(17, 31, 58, .9);
-      border: 1px solid rgba(255,255,255,.07);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      font-weight: 800;
-      box-shadow: 0 10px 26px rgba(0,0,0,.24);
-      transition: transform .18s ease, filter .18s ease, border-color .18s ease;
-      width: auto;
-    }
-    .btn:hover { transform: translateY(-2px); border-color: var(--line2); }
-    .btn:active { transform: translateY(0) scale(.98); }
-    .btn.primary { background: linear-gradient(135deg, #2f7bff, #0055e9); box-shadow: 0 14px 30px rgba(47,123,255,.28); }
-    .btn.green { background: linear-gradient(135deg, #00c896, #0a9c78); }
-    .btn.red { background: linear-gradient(135deg, #ff4d6d, #b91c1c); }
-    .btn.ghost { background: rgba(255,255,255,.04); }
-    .btn.full { width: 100%; }
-    .btn.small { padding: 9px 12px; font-size: 12px; }
+        /* Border berputar neon */
+        .container::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 48px;
+            padding: 2px;
+            background: conic-gradient(from 0deg, transparent, #00f0ff, transparent, #a855f7, transparent, #fbbf24, transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: spinBorder 10s linear infinite;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        @keyframes spinBorder {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
 
-    .setup-warning {
-      padding: 12px 14px;
-      background: rgba(255, 207, 90, .09);
-      border: 1px solid rgba(255, 207, 90, .32);
-      border-radius: 22px;
-      color: #ffe6a0;
-      line-height: 1.55;
-      font-size: 13px;
-      position: relative;
-      z-index: 1;
-    }
-    code.inline {
-      color: #bfe0ff;
-      background: rgba(255,255,255,.06);
-      padding: 2px 6px;
-      border-radius: 8px;
-      font-size: 12px;
-    }
+        /* efek glow di pojok */
+        .container::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 40%, rgba(251, 191, 36, 0.03), transparent 60%);
+            pointer-events: none;
+        }
 
-    .topbar {
-      position: fixed; top: 0; left: 0; right: 0;
-      max-width: 520px; margin: 0 auto;
-      z-index: 80;
-      padding: 12px 16px;
-      display: flex; align-items: center; justify-content: space-between;
-      background: rgba(5, 10, 22, .82);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--line);
-      border-radius: 0 0 28px 28px;
-      box-shadow: 0 14px 36px rgba(0,0,0,.28);
-    }
-    .icon-btn {
-      width: 42px; height: 42px; border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.07);
-      background: rgba(255,255,255,.04);
-      color: var(--text);
-      display: grid; place-items: center;
-    }
-    .brand { font-family: "Space Grotesk"; font-weight: 900; font-size: 16px; letter-spacing: .04em; }
-    .app-shell { padding: 76px 16px 96px; background: rgba(3,7,18,.35); }
+        /* ----- NAVBAR ----- */
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 10;
+        }
+        .logo {
+            font-weight: 900;
+            font-size: 1.6rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.15));
+        }
+        .logo i {
+            -webkit-text-fill-color: initial;
+            color: #fbbf24;
+            margin-right: 6px;
+            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.4));
+        }
+        .nav-actions {
+            display: flex;
+            gap: 1.2rem;
+            color: #64748b;
+            font-size: 1.2rem;
+        }
+        .nav-actions i {
+            transition: 0.3s;
+            cursor: default;
+        }
+        .nav-actions i:hover {
+            color: #fbbf24;
+            transform: translateY(-2px);
+        }
+        .badge-dot {
+            position: relative;
+        }
+        .badge-dot::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            right: -4px;
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+            border: 2px solid #0c141e;
+            animation: pulseDot 1.5s infinite;
+        }
+        @keyframes pulseDot {
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(0.6);
+                opacity: 0.4;
+            }
+        }
 
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      max-width: 520px; margin: 0 auto;
-      z-index: 70;
-      display: grid; grid-template-columns: repeat(5, 1fr);
-      gap: 6px;
-      padding: 10px 14px 20px;
-      background: rgba(5, 10, 22, .88);
-      backdrop-filter: blur(20px);
-      border-top: 1px solid var(--line);
-      border-radius: 28px 28px 0 0;
-    }
-    .nav-item {
-      background: transparent; border: 0; color: #7f91b0;
-      display: grid; place-items: center; gap: 5px;
-      font-size: 10.5px; font-weight: 800;
-      padding: 8px 4px; border-radius: 18px;
-    }
-    .nav-item i { font-size: 18px; }
-    .nav-item.active { color: white; background: rgba(47,123,255,.12); box-shadow: inset 0 0 0 1px rgba(47,123,255,.18); }
-    .nav-item.active i { color: var(--blue2); filter: drop-shadow(0 0 8px rgba(47,123,255,.75)); }
+        /* ----- HERO ----- */
+        .hero {
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 10;
+        }
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            padding: 0.2rem 1rem;
+            border-radius: 100px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #fca5a5;
+            margin-bottom: 0.6rem;
+        }
+        .live-badge .dot {
+            width: 6px;
+            height: 6px;
+            background: #ef4444;
+            border-radius: 50%;
+            animation: pulseDot 1.2s infinite;
+        }
+        .hero h1 {
+            font-size: 2.4rem;
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -1px;
+            color: #f8fafc;
+        }
+        .hero h1 .gradient-text {
+            background: linear-gradient(135deg, #00f0ff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 30px rgba(0, 240, 255, 0.15));
+        }
+        .hero p {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-top: 0.4rem;
+            max-width: 80%;
+            font-weight: 400;
+            line-height: 1.6;
+        }
 
-    .sidebar-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,.68); backdrop-filter: blur(8px);
-      z-index: 100; display: none;
-    }
-    .sidebar {
-      position: fixed; top: 0; left: -310px; bottom: 0;
-      width: 292px; z-index: 110;
-      background: rgba(7,12,24,.96); backdrop-filter: blur(18px);
-      border-right: 1px solid var(--line2);
-      padding: 28px 18px;
-      display: flex; flex-direction: column; gap: 10px;
-      transition: left .25s ease;
-      box-shadow: 18px 0 44px rgba(0,0,0,.42);
-    }
-    .sidebar.open { left: 0; }
-    .sidebar-item {
-      padding: 13px 14px; border-radius: 18px;
-      display: flex; align-items: center; gap: 12px;
-      color: #bed0ff; font-weight: 800;
-      border: 1px solid transparent;
-    }
-    .sidebar-item:hover, .sidebar-item.active { background: rgba(47,123,255,.12); border-color: rgba(47,123,255,.22); color: white; }
-    .sidebar-item i { width: 22px; text-align: center; color: var(--blue2); }
+        /* ----- STATS + CIRCULAR GAUGE ----- */
+        .stats-row {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            margin: 1.5rem 0 1.8rem;
+            position: relative;
+            z-index: 10;
+        }
 
-    .page { display: none; animation: fade .22s ease; }
-    .page.active { display: block; }
-    @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .gauge-wrap {
+            flex-shrink: 0;
+            width: 80px;
+            height: 80px;
+            position: relative;
+        }
+        .gauge-wrap svg {
+            transform: rotate(-90deg);
+            width: 80px;
+            height: 80px;
+        }
+        .gauge-wrap .bg-circle {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.05);
+            stroke-width: 6;
+        }
+        .gauge-wrap .progress-circle {
+            fill: none;
+            stroke: url(#gaugeGradient);
+            stroke-width: 6;
+            stroke-linecap: round;
+            stroke-dasharray: 226.19;
+            stroke-dashoffset: 226.19;
+            transition: stroke-dashoffset 2s ease;
+        }
+        .gauge-center {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.3rem;
+            color: #f8fafc;
+            line-height: 1;
+        }
+        .gauge-center small {
+            font-size: 0.55rem;
+            font-weight: 600;
+            color: #64748b;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
 
-    .card {
-      position: relative;
-      overflow: hidden;
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 18px;
-      margin-bottom: 14px;
-    }
-    .card > * { position: relative; z-index: 1; }
-    .stat {
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.07);
-      border-radius: 22px;
-      padding: 14px;
-      min-height: 96px;
-    }
-    .stat-label { color: var(--muted); font-size: 12px; font-weight: 700; }
-    .stat-value { font-family: "Space Grotesk"; font-size: 22px; font-weight: 900; margin-top: 7px; }
-    .profit { color: var(--green); } .loss { color: var(--red); }
-    .badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      border-radius: 999px; padding: 6px 10px;
-      font-size: 11px; font-weight: 900;
-      background: rgba(47,123,255,.14); color: #9fc1ff;
-      border: 1px solid rgba(47,123,255,.18);
-      white-space: nowrap;
-    }
-    .badge.premium { background: rgba(255,207,90,.12); border-color: rgba(255,207,90,.28); color: #ffe08a; }
-    .badge.green { background: rgba(0,230,178,.12); border-color: rgba(0,230,178,.24); color: #79ffd8; }
-    .badge.red { background: rgba(255,77,109,.12); border-color: rgba(255,77,109,.24); color: #ff97aa; }
+        .stats-detail {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .stats-detail .item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.04);
+            padding-bottom: 4px;
+        }
+        .stats-detail .item .val {
+            color: #f8fafc;
+            font-weight: 800;
+        }
+        .stats-detail .item .val.green {
+            color: #4ade80;
+        }
+        .stats-detail .item .val.blue {
+            color: #60a5fa;
+        }
 
-    label { font-size: 12px; font-weight: 800; color: #b7c6e7; margin: 0 0 6px 4px; display: block; }
-    input, select, textarea {
-      width: 100%; border: 1px solid rgba(255,255,255,.08);
-      background: rgba(3,7,18,.58);
-      color: white; border-radius: 18px;
-      padding: 13px 14px; outline: none;
-      margin-bottom: 12px;
-    }
-    textarea { min-height: 92px; resize: vertical; }
-    input:focus, select:focus, textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(47,123,255,.12); }
+        /* ----- GRID LAYANAN (dengan efek tilt per kartu) ----- */
+        .grid-service {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 1.5rem 0 1.8rem;
+            position: relative;
+            z-index: 10;
+        }
+        .s-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 24px;
+            padding: 1rem 0.4rem;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            backdrop-filter: blur(4px);
+            cursor: default;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+        .s-card:hover {
+            border-color: rgba(251, 191, 36, 0.2);
+            background: rgba(251, 191, 36, 0.04);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+        .s-card .icon {
+            font-size: 1.8rem;
+            margin-bottom: 4px;
+            color: #fbbf24;
+            display: block;
+            filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.1));
+            transition: 0.3s;
+        }
+        .s-card:hover .icon {
+            transform: translateZ(20px) scale(1.1);
+        }
+        .s-card .title {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+        }
+        .s-card .sub {
+            font-size: 0.6rem;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .s-card.prime {
+            background: linear-gradient(145deg, rgba(251, 191, 36, 0.12), rgba(245, 158, 11, 0.02));
+            border-color: rgba(251, 191, 36, 0.15);
+        }
+        .s-card.prime .icon {
+            animation: pulseGold 2.5s infinite;
+        }
+        @keyframes pulseGold {
+            0%,
+            100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.2));
+            }
+            50% {
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.5));
+            }
+        }
 
-    .list-item {
-      border-radius: 22px;
-      padding: 14px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.07);
-      margin-bottom: 10px;
-    }
-    .locked { filter: blur(4px); pointer-events: none; user-select: none; opacity: .7; }
-    .lock-wrap { position: relative; }
-    .lock-overlay {
-      position: absolute; inset: 0; display: grid; place-items: center; z-index: 3;
-      border-radius: 22px; background: rgba(3,7,18,.26);
-    }
-    .empty {
-      padding: 18px;
-      border-radius: 22px;
-      border: 1px dashed rgba(255,255,255,.16);
-      color: var(--muted);
-      text-align: center;
-    }
-    .avatar {
-      width: 54px; height: 54px; border-radius: 20px;
-      object-fit: cover; border: 1px solid var(--line2);
-      background: rgba(255,255,255,.06);
-      display: grid; place-items: center; overflow: hidden;
-    }
-    .avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .toast {
-      position: fixed; left: 16px; right: 16px; bottom: 96px;
-      max-width: 488px; margin: 0 auto; z-index: 200;
-      background: rgba(15,23,42,.96);
-      border: 1px solid var(--line2);
-      border-left: 5px solid var(--blue);
-      color: white;
-      padding: 14px 16px;
-      border-radius: 22px;
-      box-shadow: var(--shadow);
-      animation: toast .25s ease;
-    }
-    @keyframes toast { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        /* ----- SIGNAL CARD (dengan Strength Bar) ----- */
+        .signal-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 28px;
+            padding: 1.2rem 1.2rem;
+            margin: 0 0 1.8rem;
+            backdrop-filter: blur(4px);
+            position: relative;
+            z-index: 10;
+            overflow: hidden;
+        }
+        .signal-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .signal-left .tag {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #64748b;
+            font-weight: 700;
+        }
+        .signal-left .pair {
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: #f1f5f9;
+        }
+        .signal-left .price {
+            color: #4ade80;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-left: 8px;
+        }
+        .signal-right .change {
+            background: rgba(74, 222, 128, 0.1);
+            border: 1px solid rgba(74, 222, 128, 0.15);
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #4ade80;
+        }
+        .signal-strength {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .signal-strength .label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+        .strength-bar {
+            flex: 1;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .strength-bar .fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+            border-radius: 10px;
+            transition: width 1.5s ease;
+        }
+        .strength-value {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #fbbf24;
+            flex-shrink: 0;
+        }
 
-    .modal {
-      position: fixed; inset: 0; z-index: 160;
-      background: rgba(0,0,0,.72); backdrop-filter: blur(10px);
-      display: none; align-items: center; justify-content: center;
-      padding: 18px;
-    }
-    .modal.show { display: flex; }
-    .modal-box {
-      width: min(430px, 100%);
-      border-radius: 30px;
-      background: linear-gradient(180deg, rgba(18,29,52,.98), rgba(7,12,24,.98));
-      border: 1px solid var(--line2);
-      box-shadow: var(--shadow);
-      padding: 20px;
-    }
-    .table-like { display: grid; gap: 10px; }
-    .chip-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; }
-    .chip {
-      flex: 0 0 auto;
-      border: 1px solid rgba(255,255,255,.08);
-      background: rgba(255,255,255,.04);
-      color: #c8d6f4;
-      border-radius: 999px;
-      padding: 9px 12px;
-      font-weight: 800;
-      font-size: 12px;
-    }
-    .chip.active { color: white; background: rgba(47,123,255,.18); border-color: rgba(47,123,255,.34); }
-    canvas { max-width: 100%; }
-    .divider { height: 1px; background: rgba(255,255,255,.08); margin: 14px 0; }
+        /* ----- CTA (dengan Ripple) ----- */
+        .cta-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            z-index: 10;
+            margin-top: 0.5rem;
+        }
+        .btn-prime {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 60px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #0f172a;
+            font-weight: 800;
+            font-size: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 0 50px rgba(251, 191, 36, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.3px;
+        }
+        .btn-prime:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 70px rgba(251, 191, 36, 0.3);
+        }
+        /* Ripple effect */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(0);
+            animation: rippleAnim 0.6s linear;
+            pointer-events: none;
+        }
+        @keyframes rippleAnim {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
 
-    @media (max-width: 390px) {
-      .app-shell { padding-left: 12px; padding-right: 12px; }
-      .grid-2, .grid-3 { grid-template-columns: 1fr; }
-      .brand { font-size: 14px; }
-    }
-  </style>
+        .btn-secondary {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 60px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #cbd5e1;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+            cursor: default;
+            backdrop-filter: blur(4px);
+        }
+        .btn-secondary:hover {
+            border-color: rgba(0, 240, 255, 0.2);
+            color: #f1f5f9;
+            background: rgba(0, 240, 255, 0.04);
+        }
+
+        /* ----- BROKER CHIP ----- */
+        .broker-chip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 0.5rem 1.2rem;
+            border-radius: 60px;
+            margin-top: 1.2rem;
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(4px);
+        }
+        .broker-chip span {
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: #cbd5e1;
+        }
+        .broker-chip i {
+            color: #fbbf24;
+            margin-right: 8px;
+        }
+        .broker-chip .chip-action {
+            background: rgba(0, 240, 255, 0.06);
+            padding: 0.1rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: #67e8f9;
+            border: 1px solid rgba(0, 240, 255, 0.06);
+        }
+
+        /* ----- BOTTOM DOCK (Floating Nav) ----- */
+        .bottom-dock {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            position: relative;
+            z-index: 10;
+        }
+        .dock-icons {
+            display: flex;
+            gap: 1.6rem;
+            color: #64748b;
+            font-size: 1.2rem;
+        }
+        .dock-icons i {
+            transition: 0.3s;
+            cursor: default;
+        }
+        .dock-icons i:hover {
+            color: #fbbf24;
+            transform: translateY(-3px);
+        }
+        .dock-icons i.active {
+            color: #fbbf24;
+        }
+        .dock-version {
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: #475569;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .dock-version i {
+            color: #4ade80;
+            margin-right: 4px;
+            font-size: 0.4rem;
+        }
+
+        /* ----- ANIMASI STAGGER (fade in) ----- */
+        .fade-item {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 0.6s forwards;
+        }
+        .fade-item:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+        .fade-item:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+        .fade-item:nth-child(3) {
+            animation-delay: 0.15s;
+        }
+        .fade-item:nth-child(4) {
+            animation-delay: 0.2s;
+        }
+        .fade-item:nth-child(5) {
+            animation-delay: 0.25s;
+        }
+        .fade-item:nth-child(6) {
+            animation-delay: 0.3s;
+        }
+        .fade-item:nth-child(7) {
+            animation-delay: 0.35s;
+        }
+        .fade-item:nth-child(8) {
+            animation-delay: 0.4s;
+        }
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ----- RESPONSIF ----- */
+        @media (max-width: 380px) {
+            .container {
+                padding: 1.2rem;
+            }
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            .gauge-wrap {
+                width: 65px;
+                height: 65px;
+            }
+            .gauge-wrap svg {
+                width: 65px;
+                height: 65px;
+            }
+            .gauge-center {
+                font-size: 1rem;
+            }
+            .stats-detail .item {
+                font-size: 0.65rem;
+            }
+            .signal-left .pair {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <section id="authShell" class="auth-shell">
-    <div class="auth-card">
-      <div class="center">
-        <div class="auth-logo"><i class="fa-solid fa-chart-line"></i></div>
-        <h1 class="gradient-text">Trader X Academy</h1>
-        <p class="muted mt-8">Login pakai Gmail. Data journal, profile, dan membership tersimpan per akun Google.</p>
-      </div>
 
-      <div id="setupWarning" class="setup-warning mt-20 hidden">
-        <b><i class="fa-solid fa-triangle-exclamation"></i> Firebase belum diisi.</b><br>
-        Buka file ini, cari bagian <code class="inline">firebaseConfig</code>, lalu paste config dari Firebase Console. Tombol Google aktif setelah config terisi.
-      </div>
-
-      <div class="stack mt-20">
-        <button id="googleLoginBtn" class="btn primary full"><i class="fa-brands fa-google"></i> Login dengan Google</button>
-        <button id="demoLoginBtn" class="btn ghost full"><i class="fa-solid fa-eye"></i> Preview Demo Tanpa Firebase</button>
-      </div>
-
-      <p class="tiny center mt-16">Mode demo hanya untuk lihat tampilan. Penyimpanan Gmail/Cloud aktif setelah Firebase config diisi.</p>
-    </div>
-  </section>
-
-  <main id="mainApp" class="hidden">
-    <div class="app-shell">
-      <header class="topbar">
-        <button id="menuBtn" class="icon-btn"><i class="fa-solid fa-bars"></i></button>
-        <div class="brand gradient-text">TRADER X ACADEMY</div>
-        <button id="notifBtn" class="icon-btn"><i class="fa-solid fa-bell"></i></button>
-      </header>
-
-      <div id="sidebarOverlay" class="sidebar-overlay"></div>
-      <aside id="sidebar" class="sidebar">
-        <div class="row" style="margin-bottom:12px">
-          <div class="auth-logo" style="width:54px;height:54px;border-radius:20px;margin:0"><i class="fa-solid fa-crown" style="font-size:22px;color:#ffcf5a"></i></div>
-          <div><h3>Menu</h3><p class="tiny">Cloud account active</p></div>
+    <!-- TICKER (Harga Berjalan) -->
+    <div class="ticker-wrap">
+        <div class="ticker-content">
+            <span><i class="fab fa-bitcoin"></i> BTC/USD <span class="up">+2.4%</span> $67,432</span>
+            <span><i class="fab fa-ethereum"></i> ETH/USD <span class="up">+1.8%</span> $3,521</span>
+            <span><i class="fas fa-coins"></i> XAU/USD <span class="down">-0.3%</span> $2,345</span>
+            <span><i class="fas fa-chart-line"></i> S&P 500 <span class="up">+0.9%</span> 5,892</span>
+            <!-- Duplikasi buat infinite scroll -->
+            <span><i class="fab fa-bitcoin"></i> BTC/USD <span class="up">+2.4%</span> $67,432</span>
+            <span><i class="fab fa-ethereum"></i> ETH/USD <span class="up">+1.8%</span> $3,521</span>
+            <span><i class="fas fa-coins"></i> XAU/USD <span class="down">-0.3%</span> $2,345</span>
+            <span><i class="fas fa-chart-line"></i> S&P 500 <span class="up">+0.9%</span> 5,892</span>
         </div>
-        <div class="sidebar-item" data-page="dashboard"><i class="fa-solid fa-house"></i> Dashboard</div>
-        <div class="sidebar-item" data-page="signal"><i class="fa-solid fa-chart-line"></i> Signal</div>
-        <div class="sidebar-item" data-page="education"><i class="fa-solid fa-graduation-cap"></i> Education</div>
-        <div class="sidebar-item" data-page="journal"><i class="fa-solid fa-book-open"></i> Journal</div>
-        <div class="sidebar-item" data-page="calculator"><i class="fa-solid fa-calculator"></i> Calculator</div>
-        <div class="sidebar-item" data-page="news"><i class="fa-solid fa-newspaper"></i> News</div>
-        <div class="sidebar-item" data-page="profile"><i class="fa-solid fa-user"></i> Profile</div>
-        <div class="sidebar-item" data-page="membership" style="margin-top:auto"><i class="fa-solid fa-gem"></i> Membership</div>
-      </aside>
-
-      <section id="dashboardPage" class="page active"></section>
-      <section id="signalPage" class="page"></section>
-      <section id="educationPage" class="page"></section>
-      <section id="journalPage" class="page"></section>
-      <section id="calculatorPage" class="page"></section>
-      <section id="newsPage" class="page"></section>
-      <section id="profilePage" class="page"></section>
-      <section id="membershipPage" class="page"></section>
-
-      <nav class="bottom-nav">
-        <button class="nav-item active" data-nav="dashboard"><i class="fa-solid fa-house"></i><span>Home</span></button>
-        <button class="nav-item" data-nav="signal"><i class="fa-solid fa-chart-line"></i><span>Signal</span></button>
-        <button class="nav-item" data-nav="journal"><i class="fa-solid fa-book-open"></i><span>Journal</span></button>
-        <button class="nav-item" data-nav="news"><i class="fa-solid fa-newspaper"></i><span>News</span></button>
-        <button class="nav-item" data-nav="profile"><i class="fa-solid fa-user"></i><span>Profile</span></button>
-      </nav>
     </div>
-  </main>
 
-  <div id="modal" class="modal">
-    <div class="modal-box">
-      <div class="between">
-        <h3 id="modalTitle">Info</h3>
-        <button id="modalCloseBtn" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div id="modalBody" class="mt-16"></div>
+    <!-- MAIN -->
+    <div class="main-wrap" id="mainWrap">
+        <div class="container" id="mainContainer">
+
+            <!-- NAV -->
+            <div class="nav fade-item">
+                <div class="logo"><i class="fas fa-bolt"></i> Trader<span style="-webkit-text-fill-color:initial;color:#f8fafc;">X</span></div>
+                <div class="nav-actions">
+                    <i class="fas fa-search"></i>
+                    <i class="fas fa-bell badge-dot"></i>
+                    <i class="fas fa-user-astronaut"></i>
+                </div>
+            </div>
+
+            <!-- HERO -->
+            <div class="hero fade-item">
+                <div class="live-badge">
+                    <span class="dot"></span> Live Market
+                </div>
+                <h1>Next-Gen <br><span class="gradient-text">Trading</span> Academy</h1>
+                <p>Price action & teknikal pro — eksekusi cerdas, profit konsisten.</p>
+            </div>
+
+            <!-- STATS + GAUGE -->
+            <div class="stats-row fade-item">
+                <div class="gauge-wrap" id="gaugeWrap">
+                    <svg viewBox="0 0 80 80">
+                        <defs>
+                            <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#00f0ff" />
+                                <stop offset="100%" stop-color="#a855f7" />
+                            </linearGradient>
+                        </defs>
+                        <circle class="bg-circle" cx="40" cy="40" r="36" />
+                        <circle class="progress-circle" id="gaugeCircle" cx="40" cy="40" r="36" />
+                    </svg>
+                    <div class="gauge-center">
+                        69<small>%</small>
+                    </div>
+                </div>
+                <div class="stats-detail">
+                    <div class="item">Balance <span class="val green" id="balanceNum">Rp 95.6 Jt</span></div>
+                    <div class="item">Profit <span class="val blue">+12.8%</span></div>
+                    <div class="item">Trader Aktif <span class="val" id="traderCount">1.286</span></div>
+                </div>
+            </div>
+
+            <!-- GRID SERVICE (dengan tilt individual) -->
+            <div class="grid-service">
+                <div class="s-card fade-item card-tilt">
+                    <span class="icon"><i class="fas fa-pen-fancy"></i></span>
+                    <div class="title">Jurnal App</div>
+                    <div class="sub">IDR 850K</div>
+                </div>
+                <div class="s-card prime fade-item card-tilt">
+                    <span class="icon"><i class="fas fa-crown"></i></span>
+                    <div class="title">Join VIP</div>
+                    <div class="sub">Akses Unlimited</div>
+                </div>
+                <div class="s-card fade-item card-tilt">
+                    <span class="icon"><i class="fas fa-comments"></i></span>
+                    <div class="title">Komunitas</div>
+                    <div class="sub">Discord Free</div>
+                </div>
+                <div class="s-card fade-item card-tilt">
+                    <span class="icon"><i class="fas fa-broadcast-tower"></i></span>
+                    <div class="title">Private Signal</div>
+                    <div class="sub">Berbayar</div>
+                </div>
+            </div>
+
+            <!-- SIGNAL CARD -->
+            <div class="signal-card fade-item" id="signalCard">
+                <div class="signal-top">
+                    <div class="signal-left">
+                        <div class="tag"><i class="fas fa-wave-square" style="color:#4ade80;margin-right:4px;"></i> Live Signal</div>
+                        <div>
+                            <span class="pair">XAU/USD</span>
+                            <span class="price" id="livePrice">Rp 89.405.000</span>
+                        </div>
+                    </div>
+                    <div class="signal-right">
+                        <span class="change" id="priceChange"><i class="fas fa-arrow-up"></i> +2.4%</span>
+                    </div>
+                </div>
+                <div class="signal-strength">
+                    <span class="label">Signal Strength</span>
+                    <div class="strength-bar">
+                        <div class="fill" id="strengthFill" style="width:0%;"></div>
+                    </div>
+                    <span class="strength-value" id="strengthText">78% Bullish</span>
+                </div>
+            </div>
+
+            <!-- CTA GROUP -->
+            <div class="cta-group fade-item">
+                <div class="btn-prime" id="ctaPrime">
+                    <i class="fas fa-rocket"></i> Join Membership (Berbayar)
+                </div>
+                <div class="btn-secondary">
+                    <i class="fab fa-telegram-plane"></i> Telegram Resmi
+                </div>
+            </div>
+
+            <!-- BROKER -->
+            <div class="broker-chip fade-item">
+                <span><i class="fas fa-landmark"></i> BROKER SEMI INTERBANK</span>
+                <span class="chip-action"><i class="fas fa-chevron-right"></i> KLIK</span>
+            </div>
+
+            <!-- BOTTOM DOCK -->
+            <div class="bottom-dock fade-item">
+                <div class="dock-icons">
+                    <i class="fas fa-home active"></i>
+                    <i class="fas fa-chart-pie"></i>
+                    <i class="fas fa-users"></i>
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="dock-version">
+                    <i class="fas fa-circle"></i> v4.0
+                </div>
+            </div>
+
+        </div>
     </div>
-  </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-    import {
-      getAuth,
-      GoogleAuthProvider,
-      signInWithPopup,
-      signInWithRedirect,
-      getRedirectResult,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
-    import {
-      getFirestore,
-      doc,
-      setDoc,
-      getDoc,
-      collection,
-      addDoc,
-      deleteDoc,
-      query,
-      orderBy,
-      onSnapshot,
-      serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+    <script>
+        // ==========================================
+        // 1. CIRCULAR GAUGE ANIMATION
+        // ==========================================
+        const circle = document.getElementById('gaugeCircle');
+        const circumference = 2 * Math.PI * 36; // r=36
+        const targetPercent = 69;
+        const offset = circumference - (targetPercent / 100) * circumference;
 
-    // ============================================================
-    // 1) GANTI BAGIAN INI DENGAN CONFIG DARI FIREBASE CONSOLE
-    // ============================================================
-    const firebaseConfig = {
-      apiKey: "AIzaSyAaOaW-xMiXQRWgz3Q55VZAL4jFwpdp9kQ",
-      authDomain: "trader-x-academy.firebaseapp.com",
-      projectId: "trader-x-academy",
-      storageBucket: "trader-x-academy.firebasestorage.app",
-      messagingSenderId: "548462658678",
-      appId: "1:548462658678:web:5f78f2f07572f3c758cb57"
-    };
-    // ============================================================
+        setTimeout(() => {
+            circle.style.strokeDashoffset = offset;
+        }, 400);
 
-    let auth = null;
-    let db = null;
-    let provider = null;
-    let firebaseReady = false;
-    let currentUser = null;
-    let profile = null;
-    let journalEntries = [];
-    let chartInstance = null;
-    let unsubscribeJournal = null;
-    let activityTimer = null;
-    let currentPage = "dashboard";
-    let currentSignalFilter = "all";
-    let appMode = "cloud";
+        // ==========================================
+        // 2. SIGNAL STRENGTH BAR ANIMATION
+        // ==========================================
+        setTimeout(() => {
+            document.getElementById('strengthFill').style.width = '78%';
+        }, 600);
 
-    const els = {
-      authShell: document.getElementById("authShell"),
-      mainApp: document.getElementById("mainApp"),
-      setupWarning: document.getElementById("setupWarning"),
-      googleLoginBtn: document.getElementById("googleLoginBtn"),
-      demoLoginBtn: document.getElementById("demoLoginBtn"),
-      menuBtn: document.getElementById("menuBtn"),
-      notifBtn: document.getElementById("notifBtn"),
-      sidebar: document.getElementById("sidebar"),
-      sidebarOverlay: document.getElementById("sidebarOverlay"),
-      modal: document.getElementById("modal"),
-      modalTitle: document.getElementById("modalTitle"),
-      modalBody: document.getElementById("modalBody"),
-      modalCloseBtn: document.getElementById("modalCloseBtn")
-    };
+        // ==========================================
+        // 3. SIMULASI PERUBAHAN HARGA (Live)
+        // ==========================================
+        const priceEl = document.getElementById('livePrice');
+        const changeEl = document.getElementById('priceChange');
+        let basePrice = 89405000;
 
-    const signals = [
-      { id: 1, pair: "BTC/USD", type: "BUY", entry: 68420, tp: 69500, sl: 67800, confidence: 87, status: "Running", timeLeft: "2h", premium: false, reason: "Momentum breakout dan buyer masih dominan." },
-      { id: 2, pair: "EUR/USD", type: "BUY", entry: 1.0925, tp: 1.0980, sl: 1.0880, confidence: 92, status: "TP Hit", timeLeft: "Closed", premium: false, reason: "Dollar melemah, area demand valid." },
-      { id: 3, pair: "XAU/USD", type: "BUY", entry: 2365, tp: 2385, sl: 2345, confidence: 78, status: "Running", timeLeft: "5h", premium: true, reason: "Safe haven demand dan struktur higher low." },
-      { id: 4, pair: "ETH/USD", type: "BUY", entry: 3250, tp: 3400, sl: 3170, confidence: 84, status: "Running", timeLeft: "3h", premium: true, reason: "Crypto market risk-on, volume meningkat." },
-      { id: 5, pair: "GBP/JPY", type: "SELL", entry: 191.25, tp: 190.20, sl: 191.90, confidence: 81, status: "Running", timeLeft: "4h", premium: true, reason: "Rejection supply dan potensi yen rebound." }
-    ];
+        setInterval(() => {
+            const change = (Math.random() * 3000) - 1500; // -1500 s/d +1500
+            basePrice += change;
+            if (basePrice < 85000000) basePrice = 85000000;
+            if (basePrice > 94000000) basePrice = 94000000;
 
-    const educationModules = [
-      { id: 1, title: "Risk Management Dasar", desc: "Belajar batas risiko, drawdown, dan konsistensi lot.", premium: false, icon: "fa-shield-halved" },
-      { id: 2, title: "Smart Money Concepts", desc: "Struktur market, liquidity, BOS, CHoCH, dan FVG.", premium: false, icon: "fa-building-columns" },
-      { id: 3, title: "Entry Precision Premium", desc: "Cara entry area valid dengan konfirmasi multi-timeframe.", premium: true, icon: "fa-crosshairs" },
-      { id: 4, title: "Fundamental Macro", desc: "Bank sentral, inflasi, geopolitik, dan dampak ke market.", premium: true, icon: "fa-earth-asia" }
-    ];
+            const formatted = 'Rp ' + basePrice.toLocaleString('id-ID');
+            priceEl.textContent = formatted;
 
-    const newsArticles = [
-      { id: 1, title: "Market fokus pada arah suku bunga bank sentral", desc: "Investor menunggu sinyal inflasi dan proyeksi rate cut.", tag: "Macro", date: "Update" },
-      { id: 2, title: "Gold tetap menarik saat risiko geopolitik naik", desc: "Permintaan safe haven bisa menjaga XAU/USD tetap kuat.", tag: "XAU/USD", date: "Update" },
-      { id: 3, title: "Bitcoin bergerak sensitif terhadap risk appetite", desc: "Likuiditas dan sentimen ETF masih jadi perhatian trader.", tag: "Crypto", date: "Update" }
-    ];
+            // update change
+            const isUp = change >= 0;
+            const percentChange = ((change / basePrice) * 100).toFixed(2);
+            changeEl.innerHTML =
+                `<i class="fas fa-arrow-${isUp ? 'up' : 'down'}"></i> ${isUp ? '+' : ''}${percentChange}%`;
+            changeEl.style.color = isUp ? '#4ade80' : '#f87171';
+            changeEl.style.borderColor = isUp ? 'rgba(74,222,128,0.2)' : 'rgba(248,113,113,0.2)';
+            changeEl.style.background = isUp ? 'rgba(74,222,128,0.1)' : 'rgba(248,113,113,0.1)';
+        }, 3500);
 
-    let activityFeed = [
-      "📊 Market update: volatility naik",
-      "🎯 Journal cloud siap sinkron per Gmail",
-      "💎 Premium module locked untuk akun free",
-      "⚡ Signal BTC/USD masih running"
-    ];
+        // ==========================================
+        // 4. AKTIF TRADER COUNTER (Naik pelan)
+        // ==========================================
+        let traderCount = 1286;
+        setInterval(() => {
+            traderCount += Math.floor(Math.random() * 3);
+            document.getElementById('traderCount').textContent = traderCount.toLocaleString('id-ID');
+        }, 5000);
 
-    function isConfigFilled(config) {
-      return config && Object.values(config).every(v => typeof v === "string" && v.trim() && !v.includes("ISI_"));
-    }
-
-    function money(n) {
-      const value = Number(n || 0);
-      return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
-    }
-
-    function pct(n) { return `${Number(n || 0).toFixed(1)}%`; }
-
-    function escapeHtml(value = "") {
-      return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function showToast(message) {
-      const old = document.querySelector(".toast");
-      if (old) old.remove();
-      const t = document.createElement("div");
-      t.className = "toast";
-      t.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${escapeHtml(message)}`;
-      document.body.appendChild(t);
-      setTimeout(() => t.remove(), 2800);
-    }
-
-    function showModal(title, bodyHtml) {
-      els.modalTitle.textContent = title;
-      els.modalBody.innerHTML = bodyHtml;
-      els.modal.classList.add("show");
-    }
-
-    function closeModal() { els.modal.classList.remove("show"); }
-    function openSidebar() { els.sidebar.classList.add("open"); els.sidebarOverlay.style.display = "block"; }
-    function closeSidebar() { els.sidebar.classList.remove("open"); els.sidebarOverlay.style.display = "none"; }
-
-    function profileRef(uid) { return doc(db, "users", uid, "profile", "main"); }
-    function journalCol(uid) { return collection(db, "users", uid, "journal"); }
-
-    function getDefaultProfile(user) {
-      return {
-        uid: user.uid,
-        name: user.displayName || "Trader X Member",
-        email: user.email || "",
-        photoURL: user.photoURL || "",
-        premium: false,
-        plan: "FREE",
-        startingBalance: 10000,
-        createdAtClient: new Date().toISOString()
-      };
-    }
-
-    async function ensureProfile(user) {
-      const ref = profileRef(user.uid);
-      const snap = await getDoc(ref);
-      if (snap.exists()) {
-        const saved = snap.data();
-        profile = {
-          ...getDefaultProfile(user),
-          ...saved,
-          uid: user.uid,
-          email: user.email || saved.email || "",
-          photoURL: user.photoURL || saved.photoURL || ""
-        };
-        await setDoc(ref, {
-          email: profile.email,
-          photoURL: profile.photoURL,
-          lastLoginAt: serverTimestamp(),
-          lastLoginAtClient: new Date().toISOString()
-        }, { merge: true });
-      } else {
-        profile = getDefaultProfile(user);
-        await setDoc(ref, {
-          ...profile,
-          createdAt: serverTimestamp(),
-          lastLoginAt: serverTimestamp(),
-          lastLoginAtClient: new Date().toISOString()
+        // ==========================================
+        // 5. RIPPLE EFFECT DI TOMBOL
+        // ==========================================
+        document.getElementById('ctaPrime').addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const ripple = document.createElement('span');
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.className = 'ripple';
+            this.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
         });
-      }
-    }
 
-    function startJournalListener(uid) {
-      if (unsubscribeJournal) unsubscribeJournal();
-      const q = query(journalCol(uid), orderBy("createdAtClient", "desc"));
-      unsubscribeJournal = onSnapshot(q, snapshot => {
-        journalEntries = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderAll();
-      }, err => {
-        console.error(err);
-        showToast("Gagal ambil journal. Cek Firestore Rules / config Firebase.");
-      });
-    }
+        // ==========================================
+        // 6. INDIVIDUAL CARD TILT (Magnetic)
+        // ==========================================
+        document.querySelectorAll('.card-tilt').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -6;
+                const rotateY = ((x - centerX) / centerX) * 6;
+                card.style.transform =
+                    `perspective(500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(500px) rotateX(0deg) rotateY(0deg) scale(1)';
+            });
+        });
 
-    async function bootCloudUser(user) {
-      currentUser = user;
-      appMode = "cloud";
-      await ensureProfile(user);
-      els.authShell.classList.add("hidden");
-      els.mainApp.classList.remove("hidden");
-      startJournalListener(user.uid);
-      startActivity();
-      switchPage("dashboard");
-    }
+        // ==========================================
+        // 7. MAIN CONTAINER TILT (efek 3D keseluruhan)
+        // ==========================================
+        const mainWrap = document.getElementById('mainWrap');
+        const mainContainer = document.getElementById('mainContainer');
 
-    function bootDemoUser() {
-      appMode = "demo";
-      currentUser = { uid: "demo-user", displayName: "Demo Trader", email: "demo@traderx.com", photoURL: "" };
-      profile = JSON.parse(localStorage.getItem("traderx_demo_profile") || "null") || {
-        uid: "demo-user", name: "Demo Trader", email: "demo@traderx.com", photoURL: "", premium: false, plan: "FREE", startingBalance: 10000
-      };
-      journalEntries = JSON.parse(localStorage.getItem("traderx_demo_journal") || "[]");
-      els.authShell.classList.add("hidden");
-      els.mainApp.classList.remove("hidden");
-      startActivity();
-      switchPage("dashboard");
-      showToast("Mode demo aktif. Data ini tidak tersimpan ke Gmail.");
-    }
+        mainWrap.addEventListener('mousemove', (e) => {
+            const rect = mainWrap.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = ((y - centerY) / centerY) * -6;
+            const rotateY = ((x - centerX) / centerX) * 6;
+            mainContainer.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.01)`;
+        });
+        mainWrap.addEventListener('mouseleave', () => {
+            mainContainer.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+        });
 
-    async function loginGoogle() {
-      if (!firebaseReady) {
-        showModal("Firebase belum aktif", `
-          <p class="muted">Isi dulu <b>firebaseConfig</b> di file HTML supaya login Google bisa jalan.</p>
-          <div class="divider"></div>
-          <p class="tiny">Setelah config diisi, jalankan via localhost / Live Server / Firebase Hosting. Login Google biasanya tidak aman kalau langsung dibuka dari file mentah <code class="inline">file://</code>.</p>
-        `);
-        return;
-      }
-      try {
-        await signInWithPopup(auth, provider);
-      } catch (err) {
-        console.error(err);
-        if (err.code === "auth/popup-blocked" || err.code === "auth/popup-closed-by-user") {
-          try { await signInWithRedirect(auth, provider); }
-          catch (redirectErr) { console.error(redirectErr); showToast("Login Google gagal. Cek Authorized domain Firebase."); }
-        } else {
-          showToast("Login Google gagal. Cek Firebase config dan Authorized domain.");
-        }
-      }
-    }
-
-    async function logout() {
-      try {
-        if (unsubscribeJournal) unsubscribeJournal();
-        if (activityTimer) clearInterval(activityTimer);
-        if (appMode === "cloud" && auth) await signOut(auth);
-        currentUser = null; profile = null; journalEntries = [];
-        els.mainApp.classList.add("hidden");
-        els.authShell.classList.remove("hidden");
-        closeSidebar();
-        showToast("Logout berhasil.");
-      } catch (err) {
-        console.error(err);
-        showToast("Logout gagal.");
-      }
-    }
-
-    function startActivity() {
-      if (activityTimer) clearInterval(activityTimer);
-      activityTimer = setInterval(() => {
-        const pool = [
-          "🔥 Member baru login dengan Google",
-          "📈 BTC volume meningkat",
-          "💰 Journal tersimpan otomatis",
-          "🎯 Premium signal diperbarui",
-          "⚡ Market mulai volatil"
-        ];
-        activityFeed.unshift(pool[Math.floor(Math.random() * pool.length)]);
-        if (activityFeed.length > 6) activityFeed.pop();
-        if (currentPage === "dashboard") renderDashboardPage();
-      }, 9000);
-    }
-
-    function saveDemo() {
-      if (appMode !== "demo") return;
-      localStorage.setItem("traderx_demo_profile", JSON.stringify(profile));
-      localStorage.setItem("traderx_demo_journal", JSON.stringify(journalEntries));
-    }
-
-    async function saveProfilePatch(patch) {
-      profile = { ...profile, ...patch };
-      if (appMode === "cloud") {
-        await setDoc(profileRef(currentUser.uid), { ...patch, updatedAt: serverTimestamp(), updatedAtClient: new Date().toISOString() }, { merge: true });
-      } else {
-        saveDemo();
-      }
-      renderAll();
-    }
-
-    function calculateTradeProfit({ direction, entry, exit, lot, contractSize }) {
-      const raw = direction === "SELL" ? (entry - exit) : (exit - entry);
-      return raw * lot * contractSize;
-    }
-
-    async function addJournalEntry(payload) {
-      const createdAtClient = new Date().toISOString();
-      const profit = calculateTradeProfit(payload);
-      const data = { ...payload, profit, createdAtClient, updatedAtClient: createdAtClient };
-      if (appMode === "cloud") {
-        await addDoc(journalCol(currentUser.uid), { ...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
-      } else {
-        journalEntries.unshift({ id: String(Date.now()), ...data });
-        saveDemo();
-        renderAll();
-      }
-      showToast(`Trade tersimpan: ${profit >= 0 ? "+" : ""}${money(profit)}`);
-    }
-
-    async function deleteJournalEntry(id) {
-      if (!confirm("Hapus trade ini?")) return;
-      if (appMode === "cloud") {
-        await deleteDoc(doc(db, "users", currentUser.uid, "journal", id));
-      } else {
-        journalEntries = journalEntries.filter(e => e.id !== id);
-        saveDemo();
-        renderAll();
-      }
-      showToast("Trade dihapus.");
-    }
-
-    function getTotalPnL() { return journalEntries.reduce((s, e) => s + Number(e.profit || 0), 0); }
-    function getTodayPnL() {
-      const today = new Date().toDateString();
-      return journalEntries.filter(e => new Date(e.createdAtClient || e.date || Date.now()).toDateString() === today)
-        .reduce((s, e) => s + Number(e.profit || 0), 0);
-    }
-    function getWins() { return journalEntries.filter(e => Number(e.profit || 0) > 0).length; }
-    function getLosses() { return journalEntries.filter(e => Number(e.profit || 0) < 0).length; }
-    function getWinrate() { return journalEntries.length ? (getWins() / journalEntries.length) * 100 : 0; }
-    function getBalance() { return Number(profile?.startingBalance || 10000) + getTotalPnL(); }
-
-    function getEquityCurve() {
-      let balance = Number(profile?.startingBalance || 10000);
-      const sorted = [...journalEntries].sort((a,b) => new Date(a.createdAtClient) - new Date(b.createdAtClient));
-      const points = [{ label: "Start", balance }];
-      sorted.forEach((e, i) => {
-        balance += Number(e.profit || 0);
-        points.push({ label: e.pair || `T${i+1}`, balance });
-      });
-      return points;
-    }
-
-    function renderDashboardChart() {
-      const canvas = document.getElementById("equityCanvas");
-      if (!canvas || !window.Chart) return;
-      const data = getEquityCurve();
-      if (chartInstance) chartInstance.destroy();
-      chartInstance = new Chart(canvas.getContext("2d"), {
-        type: "line",
-        data: {
-          labels: data.map((p, i) => i === 0 ? "Start" : p.label),
-          datasets: [{ label: "Equity", data: data.map(p => p.balance), borderColor: "#00e6b2", backgroundColor: "rgba(0,230,178,.08)", borderWidth: 3, fill: true, tension: .36, pointRadius: 3 }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { labels: { color: "#dbeafe" } } },
-          scales: {
-            x: { ticks: { color: "#93a6c8" }, grid: { color: "rgba(255,255,255,.05)" } },
-            y: { ticks: { color: "#93a6c8" }, grid: { color: "rgba(255,255,255,.05)" } }
-          }
-        }
-      });
-    }
-
-    function avatarHtml() {
-      if (profile?.photoURL) return `<div class="avatar"><img src="${escapeHtml(profile.photoURL)}" alt="avatar"></div>`;
-      return `<div class="avatar"><i class="fa-solid fa-user-astronaut"></i></div>`;
-    }
-
-    function modeBadge() {
-      if (appMode === "cloud") return `<span class="badge green"><i class="fa-solid fa-cloud"></i> Gmail Cloud</span>`;
-      return `<span class="badge red"><i class="fa-solid fa-eye"></i> Demo Local</span>`;
-    }
-
-    function renderDashboardPage() {
-      const c = document.getElementById("dashboardPage");
-      const totalPnL = getTotalPnL();
-      const todayPnL = getTodayPnL();
-      const balance = getBalance();
-      const winrate = getWinrate();
-      const premiumBadge = profile?.premium ? `<span class="badge premium"><i class="fa-solid fa-crown"></i> PREMIUM</span>` : `<span class="badge">FREE</span>`;
-      c.innerHTML = `
-        <div class="card">
-          <div class="between">
-            <div class="row">
-              ${avatarHtml()}
-              <div>
-                <p class="tiny">Welcome back</p>
-                <h2>${escapeHtml(profile?.name || "Trader")}</h2>
-                <div class="row mt-8">${premiumBadge}${modeBadge()}</div>
-              </div>
-            </div>
-            <i class="fa-solid fa-chart-simple" style="font-size:30px;color:var(--blue2)"></i>
-          </div>
-        </div>
-
-        <div class="grid-2">
-          <div class="stat"><div class="stat-label">Total Balance</div><div class="stat-value">${money(balance)}</div><p class="tiny">Starting + journal P&L</p></div>
-          <div class="stat"><div class="stat-label">Total P&L</div><div class="stat-value ${totalPnL >= 0 ? "profit" : "loss"}">${totalPnL >= 0 ? "+" : ""}${money(totalPnL)}</div><p class="tiny">All trades</p></div>
-          <div class="stat"><div class="stat-label">Today P&L</div><div class="stat-value ${todayPnL >= 0 ? "profit" : "loss"}">${todayPnL >= 0 ? "+" : ""}${money(todayPnL)}</div><p class="tiny">Trade hari ini</p></div>
-          <div class="stat"><div class="stat-label">Winrate</div><div class="stat-value">${pct(winrate)}</div><p class="tiny">${getWins()} win / ${getLosses()} loss</p></div>
-        </div>
-
-        <div class="card mt-16">
-          <div class="between"><h3>Equity Curve</h3><span class="badge">${journalEntries.length} Trades</span></div>
-          <canvas id="equityCanvas" height="190" class="mt-16"></canvas>
-        </div>
-
-        <div class="card">
-          <div class="between"><h3>Quick Action</h3><span class="tiny">Cloud autosave</span></div>
-          <div class="grid-2 mt-16">
-            <button class="btn primary full" id="dashAddTradeBtn"><i class="fa-solid fa-plus"></i> Add Trade</button>
-            <button class="btn ghost full" id="dashSignalBtn"><i class="fa-solid fa-bolt"></i> Signal</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="between"><h3>Live Activity</h3><i class="fa-solid fa-fire" style="color:#ffcf5a"></i></div>
-          <div class="mt-12">${activityFeed.slice(0,5).map(a => `<div class="list-item">${escapeHtml(a)}</div>`).join("")}</div>
-        </div>
-      `;
-      renderDashboardChart();
-      document.getElementById("dashAddTradeBtn")?.addEventListener("click", () => switchPage("journal"));
-      document.getElementById("dashSignalBtn")?.addEventListener("click", () => switchPage("signal"));
-    }
-
-    function renderSignalPage() {
-      const c = document.getElementById("signalPage");
-      const filters = ["all", "free", "premium", "running", "closed"];
-      const filtered = signals.filter(s => {
-        if (currentSignalFilter === "free") return !s.premium;
-        if (currentSignalFilter === "premium") return s.premium;
-        if (currentSignalFilter === "running") return s.status === "Running";
-        if (currentSignalFilter === "closed") return s.status !== "Running";
-        return true;
-      });
-      c.innerHTML = `
-        <div class="card">
-          <div class="between"><div><h2>Live Signal</h2><p class="muted">Signal trading dengan lock premium.</p></div><i class="fa-solid fa-satellite-dish" style="font-size:28px;color:var(--blue2)"></i></div>
-          <div class="chip-row mt-16">${filters.map(f => `<button class="chip ${currentSignalFilter === f ? "active" : ""}" data-filter="${f}">${f.toUpperCase()}</button>`).join("")}</div>
-        </div>
-        ${filtered.map(sig => renderSignalCard(sig)).join("")}
-      `;
-      document.querySelectorAll(".chip[data-filter]").forEach(btn => btn.addEventListener("click", () => { currentSignalFilter = btn.dataset.filter; renderSignalPage(); }));
-      document.querySelectorAll(".copy-signal").forEach(btn => btn.addEventListener("click", async () => {
-        const sig = signals.find(s => String(s.id) === btn.dataset.id);
-        const text = `${sig.pair} ${sig.type}\nEntry: ${sig.entry}\nTP: ${sig.tp}\nSL: ${sig.sl}\nConfidence: ${sig.confidence}%`;
-        try { await navigator.clipboard.writeText(text); showToast("Signal berhasil dicopy."); }
-        catch { showToast("Copy tidak didukung browser ini."); }
-      }));
-      document.querySelectorAll(".upgrade-now").forEach(btn => btn.addEventListener("click", () => switchPage("membership")));
-    }
-
-    function renderSignalCard(sig) {
-      const locked = sig.premium && !profile?.premium;
-      const inner = `
-        <div class="list-item ${locked ? "locked" : ""}">
-          <div class="between">
-            <div><h3>${escapeHtml(sig.pair)} <span class="badge ${sig.type === "BUY" ? "green" : "red"}">${sig.type}</span></h3><p class="tiny">${escapeHtml(sig.reason)}</p></div>
-            <span class="badge ${sig.premium ? "premium" : ""}">${sig.premium ? "Premium" : "Free"}</span>
-          </div>
-          <div class="grid-3 mt-12">
-            <div class="stat"><div class="stat-label">Entry</div><div class="stat-value" style="font-size:17px">${sig.entry}</div></div>
-            <div class="stat"><div class="stat-label">TP</div><div class="stat-value profit" style="font-size:17px">${sig.tp}</div></div>
-            <div class="stat"><div class="stat-label">SL</div><div class="stat-value loss" style="font-size:17px">${sig.sl}</div></div>
-          </div>
-          <div class="between mt-12"><span class="tiny">Confidence ${sig.confidence}% • ${sig.status} • ${sig.timeLeft}</span><button class="btn small ghost copy-signal" data-id="${sig.id}"><i class="fa-solid fa-copy"></i> Copy</button></div>
-        </div>`;
-      if (!locked) return inner;
-      return `<div class="lock-wrap">${inner}<div class="lock-overlay"><button class="btn primary upgrade-now"><i class="fa-solid fa-lock"></i> Unlock Premium</button></div></div>`;
-    }
-
-    function renderEducationPage() {
-      const c = document.getElementById("educationPage");
-      c.innerHTML = `
-        <div class="card"><h2>Education</h2><p class="muted">Materi trading Trader X Academy.</p></div>
-        ${educationModules.map(m => {
-          const locked = m.premium && !profile?.premium;
-          const html = `<div class="list-item ${locked ? "locked" : ""}"><div class="between"><div class="row"><i class="fa-solid ${m.icon}" style="font-size:24px;color:var(--blue2)"></i><div><h3>${escapeHtml(m.title)}</h3><p class="tiny">${escapeHtml(m.desc)}</p></div></div><span class="badge ${m.premium ? "premium" : ""}">${m.premium ? "Premium" : "Free"}</span></div></div>`;
-          return locked ? `<div class="lock-wrap">${html}<div class="lock-overlay"><button class="btn primary upgrade-now"><i class="fa-solid fa-lock"></i> Unlock</button></div></div>` : html;
-        }).join("")}
-      `;
-      document.querySelectorAll(".upgrade-now").forEach(btn => btn.addEventListener("click", () => switchPage("membership")));
-    }
-
-    function renderJournalPage() {
-      const c = document.getElementById("journalPage");
-      c.innerHTML = `
-        <div class="card">
-          <div class="between"><div><h2>Journal Trading</h2><p class="muted">Tersimpan otomatis per akun Gmail.</p></div><span class="badge green"><i class="fa-solid fa-cloud"></i> Autosave</span></div>
-        </div>
-
-        <div class="card">
-          <h3>Tambah Trade</h3>
-          <div class="grid-2 mt-16">
-            <div><label>Pair</label><input id="tradePair" placeholder="BTC/USD" /></div>
-            <div><label>Arah</label><select id="tradeDirection"><option>BUY</option><option>SELL</option></select></div>
-            <div><label>Entry</label><input id="tradeEntry" type="number" step="any" placeholder="68420" /></div>
-            <div><label>Exit</label><input id="tradeExit" type="number" step="any" placeholder="69500" /></div>
-            <div><label>Lot</label><input id="tradeLot" type="number" step="any" value="0.01" /></div>
-            <div><label>Contract Size</label><input id="tradeContract" type="number" step="any" value="100" /></div>
-          </div>
-          <label>Catatan</label><textarea id="tradeNote" placeholder="Contoh: entry setelah breakout dan retest..."></textarea>
-          <button id="addTradeBtn" class="btn primary full"><i class="fa-solid fa-save"></i> Simpan Trade ke Akun</button>
-        </div>
-
-        <div class="card">
-          <div class="between"><h3>Riwayat Trade</h3><button id="exportCsvBtn" class="btn small ghost"><i class="fa-solid fa-file-export"></i> Export CSV</button></div>
-          <div class="mt-16" id="journalList">${renderJournalList()}</div>
-        </div>
-      `;
-      document.getElementById("addTradeBtn")?.addEventListener("click", async () => {
-        const pair = document.getElementById("tradePair").value.trim().toUpperCase();
-        const direction = document.getElementById("tradeDirection").value;
-        const entry = Number(document.getElementById("tradeEntry").value);
-        const exit = Number(document.getElementById("tradeExit").value);
-        const lot = Number(document.getElementById("tradeLot").value);
-        const contractSize = Number(document.getElementById("tradeContract").value);
-        const note = document.getElementById("tradeNote").value.trim();
-        if (!pair || !Number.isFinite(entry) || !Number.isFinite(exit) || !Number.isFinite(lot) || !Number.isFinite(contractSize)) {
-          showToast("Isi data trade dengan benar."); return;
-        }
-        await addJournalEntry({ pair, direction, entry, exit, lot, contractSize, note });
-      });
-      document.querySelectorAll(".delete-trade").forEach(btn => btn.addEventListener("click", () => deleteJournalEntry(btn.dataset.id)));
-      document.getElementById("exportCsvBtn")?.addEventListener("click", exportJournalCsv);
-    }
-
-    function renderJournalList() {
-      if (!journalEntries.length) return `<div class="empty">Belum ada trade. Tambahkan trade pertama lu bro.</div>`;
-      return journalEntries.map(e => {
-        const profit = Number(e.profit || 0);
-        return `
-          <div class="list-item">
-            <div class="between">
-              <div>
-                <h3>${escapeHtml(e.pair)} <span class="badge ${e.direction === "BUY" ? "green" : "red"}">${escapeHtml(e.direction)}</span></h3>
-                <p class="tiny">Entry ${e.entry} • Exit ${e.exit} • Lot ${e.lot} • Contract ${e.contractSize}</p>
-              </div>
-              <div style="text-align:right"><div class="stat-value ${profit >= 0 ? "profit" : "loss"}" style="font-size:18px">${profit >= 0 ? "+" : ""}${money(profit)}</div><button class="btn small red delete-trade mt-8" data-id="${e.id}"><i class="fa-solid fa-trash"></i></button></div>
-            </div>
-            ${e.note ? `<p class="tiny mt-8">Catatan: ${escapeHtml(e.note)}</p>` : ""}
-            <p class="tiny mt-8">${new Date(e.createdAtClient || Date.now()).toLocaleString("id-ID")}</p>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function exportJournalCsv() {
-      if (!journalEntries.length) { showToast("Belum ada data untuk export."); return; }
-      const headers = ["Tanggal", "Pair", "Direction", "Entry", "Exit", "Lot", "ContractSize", "Profit", "Note"];
-      const rows = journalEntries.map(e => [
-        e.createdAtClient || "", e.pair || "", e.direction || "", e.entry || "", e.exit || "", e.lot || "", e.contractSize || "", e.profit || 0, (e.note || "").replaceAll("\n", " ")
-      ]);
-      const csv = [headers, ...rows].map(row => row.map(v => `"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = `traderx-journal-${new Date().toISOString().slice(0,10)}.csv`; a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function renderCalculatorPage() {
-      const c = document.getElementById("calculatorPage");
-      c.innerHTML = `
-        <div class="card"><h2>Risk Calculator</h2><p class="muted">Hitung risiko dan estimasi lot.</p></div>
-        <div class="card">
-          <label>Balance ($)</label><input id="calcBalance" type="number" step="any" value="${Number(profile?.startingBalance || 10000)}" />
-          <label>Risk %</label><input id="calcRisk" type="number" step="any" value="1" />
-          <div class="grid-2"><div><label>Entry</label><input id="calcEntry" type="number" step="any" value="1.0925" /></div><div><label>Stop Loss</label><input id="calcSL" type="number" step="any" value="1.0880" /></div></div>
-          <label>Value per 1.0 price movement per 1 lot</label><input id="calcContract" type="number" step="any" value="100000" />
-          <button id="calcBtn" class="btn primary full"><i class="fa-solid fa-calculator"></i> Calculate</button>
-          <div id="calcResult" class="list-item mt-16 hidden"></div>
-        </div>
-      `;
-      document.getElementById("calcBtn")?.addEventListener("click", () => {
-        const balance = Number(document.getElementById("calcBalance").value);
-        const risk = Number(document.getElementById("calcRisk").value);
-        const entry = Number(document.getElementById("calcEntry").value);
-        const sl = Number(document.getElementById("calcSL").value);
-        const contract = Number(document.getElementById("calcContract").value);
-        if (![balance, risk, entry, sl, contract].every(Number.isFinite) || entry === sl) { showToast("Data kalkulator belum valid."); return; }
-        const riskAmount = balance * risk / 100;
-        const distance = Math.abs(entry - sl);
-        const lot = riskAmount / (distance * contract);
-        const res = document.getElementById("calcResult");
-        res.classList.remove("hidden");
-        res.innerHTML = `<div class="grid-2"><div><p class="tiny">Risk Amount</p><h3>${money(riskAmount)}</h3></div><div><p class="tiny">Distance</p><h3>${distance.toFixed(5)}</h3></div><div><p class="tiny">Suggested Lot</p><h3>${lot.toFixed(3)}</h3></div><div><p class="tiny">Risk</p><h3>${risk}%</h3></div></div>`;
-      });
-    }
-
-    function renderNewsPage() {
-      const c = document.getElementById("newsPage");
-      c.innerHTML = `
-        <div class="card"><h2>Market News</h2><p class="muted">Preview berita edukasi untuk member Trader X.</p></div>
-        ${newsArticles.map(n => `<div class="list-item"><div class="between"><div><span class="badge">${escapeHtml(n.tag)}</span><h3 class="mt-8">${escapeHtml(n.title)}</h3><p class="tiny mt-8">${escapeHtml(n.desc)}</p></div><i class="fa-solid fa-newspaper" style="font-size:28px;color:var(--blue2)"></i></div></div>`).join("")}
-      `;
-    }
-
-    function renderProfilePage() {
-      const c = document.getElementById("profilePage");
-      c.innerHTML = `
-        <div class="card center">
-          <div style="display:flex;justify-content:center">${avatarHtml()}</div>
-          <h2 class="mt-12">${escapeHtml(profile?.name || "Trader")}</h2>
-          <p class="muted">${escapeHtml(profile?.email || "")}</p>
-          <div class="row mt-12" style="justify-content:center">${profile?.premium ? `<span class="badge premium"><i class="fa-solid fa-crown"></i> PREMIUM</span>` : `<span class="badge">FREE</span>`}${modeBadge()}</div>
-        </div>
-        <div class="card">
-          <h3>Pengaturan Akun</h3>
-          <label class="mt-16">Nama</label><input id="profileName" value="${escapeHtml(profile?.name || "")}" />
-          <label>Starting Balance</label><input id="profileBalance" type="number" step="any" value="${Number(profile?.startingBalance || 10000)}" />
-          <button id="saveProfileBtn" class="btn primary full"><i class="fa-solid fa-save"></i> Simpan Profile</button>
-          <div class="divider"></div>
-          <button id="logoutBtn" class="btn red full"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-        </div>
-        <div class="card">
-          <h3>Data Cloud</h3>
-          <p class="tiny mt-8">Path penyimpanan:</p>
-          <div class="list-item mt-8"><code>users/${escapeHtml(currentUser?.uid || "uid")}/profile/main</code><br><code>users/${escapeHtml(currentUser?.uid || "uid")}/journal</code></div>
-        </div>
-      `;
-      document.getElementById("saveProfileBtn")?.addEventListener("click", async () => {
-        const name = document.getElementById("profileName").value.trim();
-        const startingBalance = Number(document.getElementById("profileBalance").value);
-        if (!name || !Number.isFinite(startingBalance)) { showToast("Nama atau balance belum valid."); return; }
-        await saveProfilePatch({ name, startingBalance });
-        showToast("Profile berhasil disimpan.");
-      });
-      document.getElementById("logoutBtn")?.addEventListener("click", logout);
-    }
-
-    function renderMembershipPage() {
-      const c = document.getElementById("membershipPage");
-      c.innerHTML = `
-        <div class="card"><h2>Membership</h2><p class="muted">Demo upgrade premium. Status premium ikut tersimpan di profile akun.</p></div>
-        <div class="card">
-          <div class="between"><div><h3>Monthly Premium</h3><p class="tiny">Unlock signal premium dan module premium.</p></div><h3>$29.99</h3></div>
-          <button class="btn primary full mt-16 upgradeBtn" data-plan="MONTHLY"><i class="fa-solid fa-crown"></i> Aktifkan Monthly</button>
-        </div>
-        <div class="card">
-          <div class="between"><div><h3>Lifetime Access</h3><p class="tiny">One-time premium demo.</p></div><h3>$199</h3></div>
-          <button class="btn green full mt-16 upgradeBtn" data-plan="LIFETIME"><i class="fa-solid fa-gem"></i> Aktifkan Lifetime</button>
-        </div>
-        ${profile?.premium ? `<div class="card"><span class="badge premium"><i class="fa-solid fa-check"></i> Premium aktif: ${escapeHtml(profile.plan || "PREMIUM")}</span></div>` : ""}
-      `;
-      document.querySelectorAll(".upgradeBtn").forEach(btn => btn.addEventListener("click", async () => {
-        await saveProfilePatch({ premium: true, plan: btn.dataset.plan, premiumActivatedAtClient: new Date().toISOString() });
-        showToast("Premium berhasil diaktifkan.");
-        switchPage("dashboard");
-      }));
-    }
-
-    function renderAll() {
-      if (!profile) return;
-      renderDashboardPage();
-      renderSignalPage();
-      renderEducationPage();
-      renderJournalPage();
-      renderCalculatorPage();
-      renderNewsPage();
-      renderProfilePage();
-      renderMembershipPage();
-      setActivePage(currentPage);
-    }
-
-    function setActivePage(page) {
-      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-      document.getElementById(`${page}Page`)?.classList.add("active");
-      document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.nav === page));
-      document.querySelectorAll(".sidebar-item").forEach(b => b.classList.toggle("active", b.dataset.page === page));
-    }
-
-    function switchPage(page) {
-      currentPage = page;
-      renderAll();
-      setActivePage(page);
-      closeSidebar();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function bindBaseEvents() {
-      els.googleLoginBtn.addEventListener("click", loginGoogle);
-      els.demoLoginBtn.addEventListener("click", bootDemoUser);
-      els.menuBtn.addEventListener("click", openSidebar);
-      els.sidebarOverlay.addEventListener("click", closeSidebar);
-      els.modalCloseBtn.addEventListener("click", closeModal);
-      els.modal.addEventListener("click", e => { if (e.target === els.modal) closeModal(); });
-      els.notifBtn.addEventListener("click", () => showModal("Notifikasi", `<div class="list-item">🔔 Journal sekarang bisa tersimpan per akun Gmail.</div><div class="list-item">📡 Premium signal akan terbuka jika membership aktif.</div>`));
-      document.querySelectorAll(".nav-item").forEach(btn => btn.addEventListener("click", () => switchPage(btn.dataset.nav)));
-      document.querySelectorAll(".sidebar-item").forEach(btn => btn.addEventListener("click", () => switchPage(btn.dataset.page)));
-    }
-
-    async function init() {
-      bindBaseEvents();
-      firebaseReady = isConfigFilled(firebaseConfig);
-      if (!firebaseReady) {
-        els.setupWarning.classList.remove("hidden");
-        els.googleLoginBtn.classList.add("ghost");
-      } else {
-        try {
-          const app = initializeApp(firebaseConfig);
-          auth = getAuth(app);
-          db = getFirestore(app);
-          provider = new GoogleAuthProvider();
-          provider.setCustomParameters({ prompt: "select_account" });
-          await getRedirectResult(auth).catch(() => null);
-          onAuthStateChanged(auth, user => {
-            if (user) bootCloudUser(user).catch(err => { console.error(err); showToast("Gagal load akun. Cek Firestore rules."); });
-            else {
-              els.authShell.classList.remove("hidden");
-              els.mainApp.classList.add("hidden");
-            }
-          });
-        } catch (err) {
-          console.error(err);
-          firebaseReady = false;
-          els.setupWarning.classList.remove("hidden");
-          showToast("Firebase config belum valid.");
-        }
-      }
-    }
-
-    init();
-  </script>
+        console.log('🚀 Trader X · Titanium Edition loaded!');
+    </script>
 </body>
 </html>
