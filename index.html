@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Trader X · Titanium</title>
+    <title>Trader X · Aurora Pro</title>
+    <!-- Meta untuk sharing -->
+    <meta property="og:title" content="Trader X Academy — Next-Gen Trading" />
+    <meta property="og:description" content="Edukasi trading berbasis price action & teknikal. Signal akurat, komunitas solid." />
+    <meta property="og:image" content="https://via.placeholder.com/1200x630/0b0e14/fbbf24?text=Trader+X" />
+    <meta property="og:url" content="https://trader-x.vercel.app" />
+    <meta name="twitter:card" content="summary_large_image" />
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
     <style>
@@ -21,67 +28,78 @@
             background: #060a12;
             padding: 1rem;
             font-family: 'Inter', -apple-system, sans-serif;
-            /* Grid background + aurora */
-            background-image:
-                repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255, 255, 255, 0.02) 60px),
-                repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255, 255, 255, 0.02) 60px),
-                radial-gradient(circle at 20% 30%, rgba(0, 240, 255, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
-            background-blend-mode: overlay;
+            position: relative;
+            overflow-x: hidden;
         }
 
-        /* ----- TICKER (Harga berjalan) ----- */
-        .ticker-wrap {
+        /* ===== BACKGROUND AURORA + ORBS ===== */
+        .bg-layer {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            overflow: hidden;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            padding: 0.4rem 0;
-            z-index: 999;
-            white-space: nowrap;
+            inset: 0;
+            z-index: 0;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(0, 240, 255, 0.07) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.07) 0%, transparent 50%),
+                radial-gradient(circle at 40% 60%, rgba(251, 191, 36, 0.04) 0%, transparent 40%);
+            background-size: 200% 200%;
+            animation: auroraMove 20s ease-in-out infinite alternate;
         }
-        .ticker-content {
-            display: inline-block;
-            animation: tickerScroll 25s linear infinite;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #94a3b8;
-            letter-spacing: 0.5px;
-        }
-        .ticker-content span {
-            margin: 0 1.5rem;
-        }
-        .ticker-content i {
-            margin-right: 4px;
-        }
-        .ticker-content .up {
-            color: #4ade80;
-        }
-        .ticker-content .down {
-            color: #f87171;
-        }
-        @keyframes tickerScroll {
-            0% {
-                transform: translateX(0);
-            }
-            100% {
-                transform: translateX(-50%);
-            }
+        @keyframes auroraMove {
+            0% { background-position: 0% 0%; }
+            50% { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
         }
 
-        /* ----- MAIN WRAPPER (dengan padding top buat ticker) ----- */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            pointer-events: none;
+            z-index: 0;
+            animation: floatOrb 22s ease-in-out infinite alternate;
+        }
+        .orb-1 {
+            width: 350px;
+            height: 350px;
+            background: rgba(0, 240, 255, 0.10);
+            top: -100px;
+            left: -100px;
+            animation-duration: 24s;
+        }
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(168, 85, 247, 0.08);
+            bottom: -120px;
+            right: -120px;
+            animation-duration: 28s;
+            animation-delay: -6s;
+        }
+        .orb-3 {
+            width: 250px;
+            height: 250px;
+            background: rgba(251, 191, 36, 0.06);
+            top: 40%;
+            left: 30%;
+            animation-duration: 26s;
+            animation-delay: -12s;
+        }
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(40px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 40px) scale(0.9); }
+            100% { transform: translate(30px, -20px) scale(1.05); }
+        }
+
+        /* ===== MAIN WRAPPER ===== */
         .main-wrap {
+            position: relative;
+            z-index: 1;
             width: 100%;
             max-width: 420px;
-            margin-top: 2.8rem;
-            perspective: 1200px;
         }
 
-        /* ----- CONTAINER UTAMA ----- */
+        /* ===== CONTAINER ===== */
         .container {
             background: rgba(12, 20, 30, 0.7);
             backdrop-filter: blur(24px) saturate(180%);
@@ -92,11 +110,8 @@
             box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.04);
             position: relative;
             overflow: hidden;
-            transition: transform 0.1s ease;
-            transform-style: preserve-3d;
         }
 
-        /* Border berputar neon */
         .container::before {
             content: '';
             position: absolute;
@@ -107,20 +122,15 @@
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
-            animation: spinBorder 10s linear infinite;
-            opacity: 0.5;
+            animation: spinBorder 12s linear infinite;
+            opacity: 0.4;
             pointer-events: none;
         }
         @keyframes spinBorder {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        /* efek glow di pojok */
         .container::after {
             content: '';
             position: absolute;
@@ -132,7 +142,7 @@
             pointer-events: none;
         }
 
-        /* ----- NAVBAR ----- */
+        /* ===== NAVBAR ===== */
         .nav {
             display: flex;
             justify-content: space-between;
@@ -164,12 +174,11 @@
             font-size: 1.2rem;
         }
         .nav-actions i {
-            transition: 0.3s;
+            transition: 0.2s;
             cursor: default;
         }
         .nav-actions i:hover {
             color: #fbbf24;
-            transform: translateY(-2px);
         }
         .badge-dot {
             position: relative;
@@ -187,18 +196,11 @@
             animation: pulseDot 1.5s infinite;
         }
         @keyframes pulseDot {
-            0%,
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(0.6);
-                opacity: 0.4;
-            }
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(0.6); opacity: 0.4; }
         }
 
-        /* ----- HERO ----- */
+        /* ===== HERO ===== */
         .hero {
             margin-bottom: 1.5rem;
             position: relative;
@@ -208,8 +210,8 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.15);
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.12);
             padding: 0.2rem 1rem;
             border-radius: 100px;
             font-size: 0.6rem;
@@ -245,11 +247,10 @@
             font-size: 0.85rem;
             margin-top: 0.4rem;
             max-width: 80%;
-            font-weight: 400;
             line-height: 1.6;
         }
 
-        /* ----- STATS + CIRCULAR GAUGE ----- */
+        /* ===== STATS + GAUGE ===== */
         .stats-row {
             display: flex;
             align-items: center;
@@ -257,6 +258,10 @@
             margin: 1.5rem 0 1.8rem;
             position: relative;
             z-index: 10;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 28px;
+            padding: 0.8rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
 
         .gauge-wrap {
@@ -323,14 +328,10 @@
             color: #f8fafc;
             font-weight: 800;
         }
-        .stats-detail .item .val.green {
-            color: #4ade80;
-        }
-        .stats-detail .item .val.blue {
-            color: #60a5fa;
-        }
+        .stats-detail .item .val.green { color: #4ade80; }
+        .stats-detail .item .val.blue { color: #60a5fa; }
 
-        /* ----- GRID LAYANAN (dengan efek tilt per kartu) ----- */
+        /* ===== GRID LAYANAN (SEMUA JADI LINK) ===== */
         .grid-service {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -339,66 +340,58 @@
             position: relative;
             z-index: 10;
         }
-        .s-card {
+        .s-card-link {
+            display: block;
+            text-decoration: none;
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.04);
             border-radius: 24px;
             padding: 1rem 0.4rem;
             text-align: center;
-            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-            backdrop-filter: blur(4px);
-            cursor: default;
-            transform-style: preserve-3d;
-            will-change: transform;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            color: inherit;
         }
-        .s-card:hover {
+        .s-card-link:hover {
             border-color: rgba(251, 191, 36, 0.2);
             background: rgba(251, 191, 36, 0.04);
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            transform: translateY(-2px);
         }
-        .s-card .icon {
+        .s-card-link .icon {
             font-size: 1.8rem;
             margin-bottom: 4px;
             color: #fbbf24;
             display: block;
-            filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.1));
             transition: 0.3s;
         }
-        .s-card:hover .icon {
-            transform: translateZ(20px) scale(1.1);
+        .s-card-link:hover .icon {
+            transform: scale(1.05);
         }
-        .s-card .title {
+        .s-card-link .title {
             font-weight: 700;
             font-size: 0.85rem;
             color: #e2e8f0;
         }
-        .s-card .sub {
+        .s-card-link .sub {
             font-size: 0.6rem;
             color: #64748b;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
-        .s-card.prime {
-            background: linear-gradient(145deg, rgba(251, 191, 36, 0.12), rgba(245, 158, 11, 0.02));
-            border-color: rgba(251, 191, 36, 0.15);
+        .s-card-link.prime {
+            background: linear-gradient(145deg, rgba(251, 191, 36, 0.08), rgba(245, 158, 11, 0.01));
+            border-color: rgba(251, 191, 36, 0.12);
         }
-        .s-card.prime .icon {
+        .s-card-link.prime .icon {
             animation: pulseGold 2.5s infinite;
         }
         @keyframes pulseGold {
-            0%,
-            100% {
-                transform: scale(1);
-                filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.2));
-            }
-            50% {
-                transform: scale(1.1);
-                filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.5));
-            }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
         }
 
-        /* ----- SIGNAL CARD (dengan Strength Bar) ----- */
+        /* ===== SIGNAL CARD ===== */
         .signal-card {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -408,7 +401,6 @@
             backdrop-filter: blur(4px);
             position: relative;
             z-index: 10;
-            overflow: hidden;
         }
         .signal-top {
             display: flex;
@@ -434,8 +426,8 @@
             margin-left: 8px;
         }
         .signal-right .change {
-            background: rgba(74, 222, 128, 0.1);
-            border: 1px solid rgba(74, 222, 128, 0.15);
+            background: rgba(74, 222, 128, 0.08);
+            border: 1px solid rgba(74, 222, 128, 0.12);
             padding: 0.2rem 1rem;
             border-radius: 40px;
             font-weight: 700;
@@ -477,7 +469,7 @@
             flex-shrink: 0;
         }
 
-        /* ----- CTA (dengan Ripple) ----- */
+        /* ===== CTA (tombol link) ===== */
         .cta-group {
             display: flex;
             flex-direction: column;
@@ -487,6 +479,10 @@
             margin-top: 0.5rem;
         }
         .btn-prime {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
             width: 100%;
             padding: 1rem;
             border: none;
@@ -495,61 +491,47 @@
             color: #0f172a;
             font-weight: 800;
             font-size: 1rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 0 50px rgba(251, 191, 36, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
-            cursor: default;
-            position: relative;
-            overflow: hidden;
+            text-decoration: none;
+            box-shadow: 0 0 50px rgba(251, 191, 36, 0.15);
+            transition: all 0.25s ease;
             letter-spacing: 0.3px;
+            cursor: pointer;
         }
         .btn-prime:hover {
             transform: scale(1.02);
-            box-shadow: 0 0 70px rgba(251, 191, 36, 0.3);
+            box-shadow: 0 0 70px rgba(251, 191, 36, 0.2);
         }
-        /* Ripple effect */
-        .ripple {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            transform: scale(0);
-            animation: rippleAnim 0.6s linear;
-            pointer-events: none;
-        }
-        @keyframes rippleAnim {
-            to {
-                transform: scale(4);
-                opacity: 0;
-            }
+        .btn-prime i {
+            color: #0f172a;
         }
 
         .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             width: 100%;
             padding: 0.8rem;
             border-radius: 60px;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.06);
             color: #cbd5e1;
             font-weight: 700;
             font-size: 0.85rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            transition: 0.3s;
-            cursor: default;
-            backdrop-filter: blur(4px);
+            text-decoration: none;
+            transition: 0.25s;
+            cursor: pointer;
         }
         .btn-secondary:hover {
-            border-color: rgba(0, 240, 255, 0.2);
+            border-color: rgba(0, 240, 255, 0.15);
             color: #f1f5f9;
-            background: rgba(0, 240, 255, 0.04);
+            background: rgba(0, 240, 255, 0.03);
+        }
+        .btn-secondary i {
+            color: #fbbf24;
         }
 
-        /* ----- BROKER CHIP ----- */
+        /* ===== BROKER CHIP ===== */
         .broker-chip {
             display: flex;
             justify-content: space-between;
@@ -561,7 +543,6 @@
             margin-top: 1.2rem;
             position: relative;
             z-index: 10;
-            backdrop-filter: blur(4px);
         }
         .broker-chip span {
             font-weight: 700;
@@ -573,16 +554,23 @@
             margin-right: 8px;
         }
         .broker-chip .chip-action {
-            background: rgba(0, 240, 255, 0.06);
+            background: rgba(0, 240, 255, 0.05);
             padding: 0.1rem 0.8rem;
             border-radius: 40px;
             font-size: 0.6rem;
             font-weight: 700;
             color: #67e8f9;
-            border: 1px solid rgba(0, 240, 255, 0.06);
+            border: 1px solid rgba(0, 240, 255, 0.05);
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .broker-chip .chip-action:hover {
+            background: rgba(0, 240, 255, 0.1);
+            border-color: rgba(0, 240, 255, 0.2);
         }
 
-        /* ----- BOTTOM DOCK (Floating Nav) ----- */
+        /* ===== BOTTOM DOCK ===== */
         .bottom-dock {
             display: flex;
             justify-content: space-between;
@@ -600,12 +588,11 @@
             font-size: 1.2rem;
         }
         .dock-icons i {
-            transition: 0.3s;
+            transition: 0.2s;
             cursor: default;
         }
         .dock-icons i:hover {
             color: #fbbf24;
-            transform: translateY(-3px);
         }
         .dock-icons i.active {
             color: #fbbf24;
@@ -614,10 +601,10 @@
             font-size: 0.55rem;
             font-weight: 700;
             color: #475569;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.02);
             padding: 0.2rem 0.8rem;
             border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.03);
         }
         .dock-version i {
             color: #4ade80;
@@ -625,91 +612,83 @@
             font-size: 0.4rem;
         }
 
-        /* ----- ANIMASI STAGGER (fade in) ----- */
+        /* ===== FOOTER URL ===== */
+        .footer-url {
+            margin-top: 1.2rem;
+            text-align: center;
+            font-size: 0.6rem;
+            color: #475569;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding-top: 1rem;
+            position: relative;
+            z-index: 10;
+        }
+        .footer-url a {
+            color: #fbbf24;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .footer-url a:hover { text-decoration:underline; }
+        .btn-copy {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            color: #94a3b8;
+            font-size: 0.55rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-left: 6px;
+        }
+        .btn-copy:hover {
+            background: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, 0.2);
+        }
+
+        /* ===== ANIMASI STAGGER ===== */
         .fade-item {
             opacity: 0;
             transform: translateY(20px);
             animation: fadeUp 0.6s forwards;
         }
-        .fade-item:nth-child(1) {
-            animation-delay: 0.05s;
-        }
-        .fade-item:nth-child(2) {
-            animation-delay: 0.1s;
-        }
-        .fade-item:nth-child(3) {
-            animation-delay: 0.15s;
-        }
-        .fade-item:nth-child(4) {
-            animation-delay: 0.2s;
-        }
-        .fade-item:nth-child(5) {
-            animation-delay: 0.25s;
-        }
-        .fade-item:nth-child(6) {
-            animation-delay: 0.3s;
-        }
-        .fade-item:nth-child(7) {
-            animation-delay: 0.35s;
-        }
-        .fade-item:nth-child(8) {
-            animation-delay: 0.4s;
-        }
+        .fade-item:nth-child(1) { animation-delay: 0.05s; }
+        .fade-item:nth-child(2) { animation-delay: 0.10s; }
+        .fade-item:nth-child(3) { animation-delay: 0.15s; }
+        .fade-item:nth-child(4) { animation-delay: 0.20s; }
+        .fade-item:nth-child(5) { animation-delay: 0.25s; }
+        .fade-item:nth-child(6) { animation-delay: 0.30s; }
+        .fade-item:nth-child(7) { animation-delay: 0.35s; }
+        .fade-item:nth-child(8) { animation-delay: 0.40s; }
+
         @keyframes fadeUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ----- RESPONSIF ----- */
+        /* ===== RESPONSIF ===== */
         @media (max-width: 380px) {
-            .container {
-                padding: 1.2rem;
-            }
-            .hero h1 {
-                font-size: 1.8rem;
-            }
-            .gauge-wrap {
-                width: 65px;
-                height: 65px;
-            }
-            .gauge-wrap svg {
-                width: 65px;
-                height: 65px;
-            }
-            .gauge-center {
-                font-size: 1rem;
-            }
-            .stats-detail .item {
-                font-size: 0.65rem;
-            }
-            .signal-left .pair {
-                font-size: 1.1rem;
-            }
+            .container { padding: 1.2rem; }
+            .hero h1 { font-size: 1.8rem; }
+            .gauge-wrap { width: 65px; height: 65px; }
+            .gauge-wrap svg { width: 65px; height: 65px; }
+            .gauge-center { font-size: 1rem; }
+            .stats-detail .item { font-size: 0.65rem; }
+            .signal-left .pair { font-size: 1.1rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- TICKER (Harga Berjalan) -->
-    <div class="ticker-wrap">
-        <div class="ticker-content">
-            <span><i class="fab fa-bitcoin"></i> BTC/USD <span class="up">+2.4%</span> $67,432</span>
-            <span><i class="fab fa-ethereum"></i> ETH/USD <span class="up">+1.8%</span> $3,521</span>
-            <span><i class="fas fa-coins"></i> XAU/USD <span class="down">-0.3%</span> $2,345</span>
-            <span><i class="fas fa-chart-line"></i> S&P 500 <span class="up">+0.9%</span> 5,892</span>
-            <!-- Duplikasi buat infinite scroll -->
-            <span><i class="fab fa-bitcoin"></i> BTC/USD <span class="up">+2.4%</span> $67,432</span>
-            <span><i class="fab fa-ethereum"></i> ETH/USD <span class="up">+1.8%</span> $3,521</span>
-            <span><i class="fas fa-coins"></i> XAU/USD <span class="down">-0.3%</span> $2,345</span>
-            <span><i class="fas fa-chart-line"></i> S&P 500 <span class="up">+0.9%</span> 5,892</span>
-        </div>
-    </div>
+    <!-- BACKGROUND -->
+    <div class="bg-layer"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
 
     <!-- MAIN -->
-    <div class="main-wrap" id="mainWrap">
-        <div class="container" id="mainContainer">
+    <div class="main-wrap">
+        <div class="container">
 
             <!-- NAV -->
             <div class="nav fade-item">
@@ -732,7 +711,7 @@
 
             <!-- STATS + GAUGE -->
             <div class="stats-row fade-item">
-                <div class="gauge-wrap" id="gaugeWrap">
+                <div class="gauge-wrap">
                     <svg viewBox="0 0 80 80">
                         <defs>
                             <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -754,32 +733,36 @@
                 </div>
             </div>
 
-            <!-- GRID SERVICE (dengan tilt individual) -->
+            <!-- ===== GRID LAYANAN (SEMUA LINK) ===== -->
             <div class="grid-service">
-                <div class="s-card fade-item card-tilt">
+                <!-- Jurnal App -->
+                <a href="https://cdx-id.vercel.app/" target="_blank" class="s-card-link fade-item">
                     <span class="icon"><i class="fas fa-pen-fancy"></i></span>
                     <div class="title">Jurnal App</div>
                     <div class="sub">IDR 850K</div>
-                </div>
-                <div class="s-card prime fade-item card-tilt">
+                </a>
+                <!-- Join VIP -->
+                <a href="https://t.me/+6285746639477" target="_blank" class="s-card-link prime fade-item">
                     <span class="icon"><i class="fas fa-crown"></i></span>
                     <div class="title">Join VIP</div>
                     <div class="sub">Akses Unlimited</div>
-                </div>
-                <div class="s-card fade-item card-tilt">
+                </a>
+                <!-- Komunitas -->
+                <a href="https://discord.gg/db686rhZp" target="_blank" class="s-card-link fade-item">
                     <span class="icon"><i class="fas fa-comments"></i></span>
                     <div class="title">Komunitas</div>
                     <div class="sub">Discord Free</div>
-                </div>
-                <div class="s-card fade-item card-tilt">
+                </a>
+                <!-- Private Signal -->
+                <a href="https://example.com/private-signal" target="_blank" class="s-card-link fade-item">
                     <span class="icon"><i class="fas fa-broadcast-tower"></i></span>
                     <div class="title">Private Signal</div>
                     <div class="sub">Berbayar</div>
-                </div>
+                </a>
             </div>
 
             <!-- SIGNAL CARD -->
-            <div class="signal-card fade-item" id="signalCard">
+            <div class="signal-card fade-item">
                 <div class="signal-top">
                     <div class="signal-left">
                         <div class="tag"><i class="fas fa-wave-square" style="color:#4ade80;margin-right:4px;"></i> Live Signal</div>
@@ -801,20 +784,22 @@
                 </div>
             </div>
 
-            <!-- CTA GROUP -->
+            <!-- ===== CTA (LINK) ===== -->
             <div class="cta-group fade-item">
-                <div class="btn-prime" id="ctaPrime">
+                <!-- Join Membership (ganti href) -->
+                <a href="https://cdx-projek.vercel.app/" target="_blank" class="btn-prime">
                     <i class="fas fa-rocket"></i> Join Membership (Berbayar)
-                </div>
-                <div class="btn-secondary">
+                </a>
+                <!-- Telegram Resmi (ganti href) -->
+                <a href="https://t.me/Condexs" target="_blank" class="btn-secondary">
                     <i class="fab fa-telegram-plane"></i> Telegram Resmi
-                </div>
+                </a>
             </div>
 
-            <!-- BROKER -->
+            <!-- BROKER (link) -->
             <div class="broker-chip fade-item">
                 <span><i class="fas fa-landmark"></i> BROKER SEMI INTERBANK</span>
-                <span class="chip-action"><i class="fas fa-chevron-right"></i> KLIK</span>
+                <a href="https://vigco.co/la-s1com-inv/id/LAq394j2" target="_blank" class="chip-action"><i class="fas fa-chevron-right"></i> KLIK</a>
             </div>
 
             <!-- BOTTOM DOCK -->
@@ -830,122 +815,81 @@
                 </div>
             </div>
 
+            <!-- ===== FOOTER URL ===== -->
+            <div class="footer-url fade-item">
+                <span>🔗 <span id="siteUrl">https://trader-x.vercel.app</span></span>
+                <button class="btn-copy" id="copyBtn"><i class="fas fa-copy"></i> Salin</button>
+                <br>
+                <small style="color:#334155;">&copy; 2026 Trader X Academy — <a href="#" target="_blank">Tentang Kami</a></small>
+            </div>
+
         </div>
     </div>
 
     <script>
-        // ==========================================
-        // 1. CIRCULAR GAUGE ANIMATION
-        // ==========================================
+        // ===== GAUGE =====
         const circle = document.getElementById('gaugeCircle');
-        const circumference = 2 * Math.PI * 36; // r=36
+        const circumference = 2 * Math.PI * 36;
         const targetPercent = 69;
         const offset = circumference - (targetPercent / 100) * circumference;
-
         setTimeout(() => {
             circle.style.strokeDashoffset = offset;
         }, 400);
 
-        // ==========================================
-        // 2. SIGNAL STRENGTH BAR ANIMATION
-        // ==========================================
+        // ===== STRENGTH BAR =====
         setTimeout(() => {
             document.getElementById('strengthFill').style.width = '78%';
         }, 600);
 
-        // ==========================================
-        // 3. SIMULASI PERUBAHAN HARGA (Live)
-        // ==========================================
+        // ===== HARGA UPDATER =====
         const priceEl = document.getElementById('livePrice');
         const changeEl = document.getElementById('priceChange');
         let basePrice = 89405000;
-
         setInterval(() => {
-            const change = (Math.random() * 3000) - 1500; // -1500 s/d +1500
+            const change = (Math.random() * 3000) - 1500;
             basePrice += change;
             if (basePrice < 85000000) basePrice = 85000000;
             if (basePrice > 94000000) basePrice = 94000000;
-
-            const formatted = 'Rp ' + basePrice.toLocaleString('id-ID');
-            priceEl.textContent = formatted;
-
-            // update change
+            priceEl.textContent = 'Rp ' + basePrice.toLocaleString('id-ID');
             const isUp = change >= 0;
             const percentChange = ((change / basePrice) * 100).toFixed(2);
-            changeEl.innerHTML =
-                `<i class="fas fa-arrow-${isUp ? 'up' : 'down'}"></i> ${isUp ? '+' : ''}${percentChange}%`;
+            changeEl.innerHTML = `<i class="fas fa-arrow-${isUp ? 'up' : 'down'}"></i> ${isUp ? '+' : ''}${percentChange}%`;
             changeEl.style.color = isUp ? '#4ade80' : '#f87171';
-            changeEl.style.borderColor = isUp ? 'rgba(74,222,128,0.2)' : 'rgba(248,113,113,0.2)';
-            changeEl.style.background = isUp ? 'rgba(74,222,128,0.1)' : 'rgba(248,113,113,0.1)';
+            changeEl.style.background = isUp ? 'rgba(74,222,128,0.08)' : 'rgba(248,113,113,0.08)';
+            changeEl.style.borderColor = isUp ? 'rgba(74,222,128,0.12)' : 'rgba(248,113,113,0.12)';
         }, 3500);
 
-        // ==========================================
-        // 4. AKTIF TRADER COUNTER (Naik pelan)
-        // ==========================================
+        // ===== TRADER COUNTER =====
         let traderCount = 1286;
         setInterval(() => {
             traderCount += Math.floor(Math.random() * 3);
             document.getElementById('traderCount').textContent = traderCount.toLocaleString('id-ID');
         }, 5000);
 
-        // ==========================================
-        // 5. RIPPLE EFFECT DI TOMBOL
-        // ==========================================
-        document.getElementById('ctaPrime').addEventListener('click', function(e) {
-            const rect = this.getBoundingClientRect();
-            const ripple = document.createElement('span');
-            const size = Math.max(rect.width, rect.height);
-            const x = e.clientX - rect.left - size / 2;
-            const y = e.clientY - rect.top - size / 2;
-            ripple.style.width = ripple.style.height = size + 'px';
-            ripple.style.left = x + 'px';
-            ripple.style.top = y + 'px';
-            ripple.className = 'ripple';
-            this.appendChild(ripple);
-            setTimeout(() => ripple.remove(), 600);
-        });
-
-        // ==========================================
-        // 6. INDIVIDUAL CARD TILT (Magnetic)
-        // ==========================================
-        document.querySelectorAll('.card-tilt').forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                const rotateX = ((y - centerY) / centerY) * -6;
-                const rotateY = ((x - centerX) / centerX) * 6;
-                card.style.transform =
-                    `perspective(500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
-            });
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'perspective(500px) rotateX(0deg) rotateY(0deg) scale(1)';
+        // ===== COPY LINK =====
+        document.getElementById('copyBtn').addEventListener('click', function() {
+            const url = document.getElementById('siteUrl').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                this.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-copy"></i> Salin';
+                }, 2000);
+            }).catch(() => {
+                const range = document.createRange();
+                const selection = window.getSelection();
+                const el = document.getElementById('siteUrl');
+                range.selectNodeContents(el);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                document.execCommand('copy');
+                this.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-copy"></i> Salin';
+                }, 2000);
             });
         });
 
-        // ==========================================
-        // 7. MAIN CONTAINER TILT (efek 3D keseluruhan)
-        // ==========================================
-        const mainWrap = document.getElementById('mainWrap');
-        const mainContainer = document.getElementById('mainContainer');
-
-        mainWrap.addEventListener('mousemove', (e) => {
-            const rect = mainWrap.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const rotateX = ((y - centerY) / centerY) * -6;
-            const rotateY = ((x - centerX) / centerX) * 6;
-            mainContainer.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.01)`;
-        });
-        mainWrap.addEventListener('mouseleave', () => {
-            mainContainer.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
-        });
-
-        console.log('🚀 Trader X · Titanium Edition loaded!');
+        console.log('🌌 Trader X · Semua layanan sudah link!');
     </script>
 </body>
 </html>
