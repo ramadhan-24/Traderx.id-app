@@ -111,7 +111,6 @@
             overflow: hidden;
         }
 
-        /* Gradient border berputar */
         .container::before {
             content: '';
             position: absolute;
@@ -140,7 +139,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Glow halus */
         .container::after {
             content: '';
             position: absolute;
@@ -356,7 +354,7 @@
         .stats-detail .item .val.green { color: #4ade80; }
         .stats-detail .item .val.blue { color: #60a5fa; }
 
-        /* ===== GRID LAYANAN ===== */
+        /* ===== GRID LAYANAN (3 CARD, VIP HIGHLIGHT) ===== */
         .grid-service {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -422,19 +420,45 @@
             text-transform: uppercase;
             letter-spacing: 0.4px;
         }
+
+        /* VIP Card — Full width highlight */
         .s-card-link.prime {
-            background: linear-gradient(145deg, rgba(251, 191, 36, 0.10), rgba(245, 158, 11, 0.02));
-            border-color: rgba(251, 191, 36, 0.18);
+            grid-column: span 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            padding: 1.1rem 1rem;
+            text-align: left;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(245, 158, 11, 0.03));
+            border-color: rgba(251, 191, 36, 0.25);
         }
         .s-card-link.prime .icon {
+            font-size: 2rem;
+            margin-bottom: 0;
             animation: pulseGold 2.5s ease-in-out infinite;
+        }
+        .s-card-link.prime .title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #fbbf24;
+        }
+        .s-card-link.prime .sub {
+            font-size: 0.65rem;
+            color: #fbbf24;
+            opacity: 0.8;
+        }
+        .s-card-link.prime .text-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
         @keyframes pulseGold {
             0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.3)); }
             50% { transform: scale(1.08); filter: drop-shadow(0 0 18px rgba(251, 191, 36, 0.6)); }
         }
 
-        /* ===== SIGNAL CARD (UPGRADED) ===== */
+        /* ===== SIGNAL CARD ===== */
         .signal-card {
             background: rgba(255, 255, 255, 0.025);
             border: 1px solid rgba(255, 255, 255, 0.06);
@@ -826,7 +850,6 @@
         .fade-item:nth-child(7) { animation-delay: 0.35s; }
         .fade-item:nth-child(8) { animation-delay: 0.40s; }
         .fade-item:nth-child(9) { animation-delay: 0.45s; }
-        .fade-item:nth-child(10) { animation-delay: 0.50s; }
 
         @keyframes fadeUp {
             to { opacity: 1; transform: translateY(0); }
@@ -844,6 +867,8 @@
             .signal-price-row .price { font-size: 1rem; }
             .signal-right .change { font-size: 0.75rem; padding: 0.15rem 0.7rem; }
             .dock-icons { gap: 1.2rem; font-size: 1.05rem; }
+            .s-card-link.prime { padding: 0.95rem 0.8rem; gap: 10px; }
+            .s-card-link.prime .title { font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -900,31 +925,31 @@
                 </div>
             </div>
 
-            <!-- ===== GRID LAYANAN ===== -->
+            <!-- ===== GRID LAYANAN (3 CARD, VIP HIGHLIGHT) ===== -->
             <div class="grid-service">
+                <!-- Jurnal App -->
                 <a href="https://cdx-id.vercel.app/" target="_blank" class="s-card-link fade-item">
                     <span class="icon"><i class="fas fa-pen-fancy"></i></span>
                     <div class="title">Jurnal App</div>
                     <div class="sub">IDR 850K</div>
                 </a>
-                <a href="https://t.me/+6285746639477" target="_blank" class="s-card-link prime fade-item">
-                    <span class="icon"><i class="fas fa-crown"></i></span>
-                    <div class="title">Join VIP</div>
-                    <div class="sub">Akses Unlimited</div>
-                </a>
+                <!-- Komunitas -->
                 <a href="https://discord.gg/db686rhZp" target="_blank" class="s-card-link fade-item">
                     <span class="icon"><i class="fas fa-comments"></i></span>
                     <div class="title">Komunitas</div>
                     <div class="sub">Discord Free</div>
                 </a>
-                <a href="https://t.me/+6285746639477?text=Halo%20gua%20mau%20join%20Private%20Signal%20Trader%20X%20Academy" target="_blank" class="s-card-link fade-item">
-                    <span class="icon"><i class="fas fa-broadcast-tower"></i></span>
-                    <div class="title">Private Signal</div>
-                    <div class="sub">Berbayar</div>
+                <!-- Join VIP (Highlight Full Width) -->
+                <a href="https://t.me/+6285746639477" target="_blank" class="s-card-link prime fade-item">
+                    <span class="icon"><i class="fas fa-crown"></i></span>
+                    <div class="text-wrap">
+                        <div class="title">Join VIP</div>
+                        <div class="sub">Akses Unlimited</div>
+                    </div>
                 </a>
             </div>
 
-            <!-- ===== SIGNAL CARD (UPGRADED) ===== -->
+            <!-- ===== SIGNAL CARD ===== -->
             <div class="signal-card fade-item">
                 <div class="signal-top">
                     <div class="signal-left">
@@ -950,7 +975,7 @@
                     <span class="strength-value" id="strengthText">78% Bullish</span>
                 </div>
 
-                <!-- Sparkline mini (dekorasi) -->
+                <!-- Sparkline mini -->
                 <svg class="sparkline" viewBox="0 0 400 40" preserveAspectRatio="none">
                     <polyline points="0,35 40,28 80,32 120,18 160,22 200,8 240,15 280,10 320,20 360,12 400,4"
                         stroke="#fbbf24" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1067,7 +1092,7 @@
             });
         });
 
-        console.log('🚀 Trader X · Ultra Edition loaded!');
+        console.log('🚀 Trader X · Ultra Edition (VIP Highlight) loaded!');
     </script>
 </body>
 </html>
