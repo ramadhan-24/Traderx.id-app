@@ -576,4 +576,407 @@
         }
         .broker-banner .txt { display: flex; flex-direction: column; gap: 1px; }
         .broker-banner .txt .t1 {
-            font-size: 0.8r
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: #f1f5f9;
+            letter-spacing: -0.2px;
+        }
+        .broker-banner .txt .t2 { font-size: 0.6rem; color: #64748b; font-weight: 600; }
+        .broker-banner .arrow { color: #00f0ff; font-size: 0.8rem; transition: 0.3s; }
+        .broker-banner:hover .arrow { transform: translateX(4px); }
+
+        /* ===== BOTTOM NAV ===== */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: rgba(10, 16, 24, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 24px;
+            padding: 0.6rem 0.8rem;
+            margin-top: 4px;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            text-decoration: none;
+            color: #64748b;
+            padding: 0.4rem 0.8rem;
+            border-radius: 14px;
+            transition: 0.3s;
+            position: relative;
+        }
+        .nav-item i { font-size: 1.05rem; transition: 0.3s; }
+        .nav-item .lbl {
+            font-size: 0.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .nav-item:hover { color: #fbbf24; }
+        .nav-item:hover i { transform: translateY(-2px); }
+        .nav-item.active { color: #fbbf24; }
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px; height: 4px;
+            background: #fbbf24;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(251, 191, 36, 0.9);
+        }
+        .nav-item.active i { filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6)); }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            font-size: 0.55rem;
+            color: #334155;
+            padding: 0.8rem 0 0.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .footer .url-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.6rem;
+            color: #475569;
+        }
+        .footer .url-row i { color: #fbbf24; font-size: 0.55rem; }
+        .footer .btn-copy {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 0.15rem 0.6rem;
+            border-radius: 40px;
+            color: #94a3b8;
+            font-size: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.25s;
+            margin-left: 4px;
+        }
+        .footer .btn-copy:hover {
+            background: rgba(251, 191, 36, 0.12);
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, 0.3);
+        }
+        .footer a { color: #fbbf24; text-decoration: none; font-weight: 600; }
+        .footer a:hover { text-decoration: underline; }
+
+        /* ===== ANIMASI MASUK ===== */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(18px);
+            animation: fadeUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        .fade-up:nth-child(1) { animation-delay: 0.05s; }
+        .fade-up:nth-child(2) { animation-delay: 0.10s; }
+        .fade-up:nth-child(3) { animation-delay: 0.15s; }
+        .fade-up:nth-child(4) { animation-delay: 0.20s; }
+        .fade-up:nth-child(5) { animation-delay: 0.25s; }
+        .fade-up:nth-child(6) { animation-delay: 0.30s; }
+        .fade-up:nth-child(7) { animation-delay: 0.35s; }
+        .fade-up:nth-child(8) { animation-delay: 0.40s; }
+        .fade-up:nth-child(9) { animation-delay: 0.45s; }
+        .fade-up:nth-child(10) { animation-delay: 0.50s; }
+        .fade-up:nth-child(11) { animation-delay: 0.55s; }
+        .fade-up:nth-child(12) { animation-delay: 0.60s; }
+
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== RESPONSIF ===== */
+        @media (max-width: 360px) {
+            body { padding: 0.7rem; }
+            .balance-amount { font-size: 1.85rem; }
+            .greeting .name { font-size: 1.05rem; }
+            .avatar { width: 40px; height: 40px; }
+            .qs-card .qs-value { font-size: 0.85rem; }
+            .menu-item { padding: 0.85rem 0.95rem; }
+            .menu-icon { width: 40px; height: 40px; font-size: 1rem; }
+            .menu-text .title { font-size: 0.85rem; }
+            .signal-body .pair { font-size: 1.05rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BACKGROUND -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
+    <div class="bg-glow glow-3"></div>
+
+    <!-- APP -->
+    <div class="app">
+
+        <!-- ===== HEADER ===== -->
+        <div class="header fade-up">
+            <div class="greeting">
+                <span class="hello">Welcome back 👋</span>
+                <span class="name"><i class="fas fa-bolt"></i> Trader X</span>
+            </div>
+            <div class="avatar-wrap">
+                <div class="avatar">TX</div>
+            </div>
+        </div>
+
+        <!-- ===== BALANCE CARD ===== -->
+        <div class="balance-card fade-up">
+            <div class="balance-top">
+                <span class="balance-label"><i class="fas fa-circle"></i> Total Balance</span>
+                <span class="balance-badge"><i class="fas fa-circle"></i> LIVE</span>
+            </div>
+            <div class="balance-amount">
+                Rp 95.6 <small>Jt</small>
+            </div>
+            <div class="balance-bottom">
+                <div class="balance-change">
+                    <span class="lbl">Profit Hari Ini</span>
+                    <span class="val"><i class="fas fa-arrow-up"></i> +12.8%</span>
+                </div>
+                <svg class="balance-mini-chart" viewBox="0 0 80 36" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.5"/>
+                            <stop offset="100%" stop-color="#00f0ff" stop-opacity="0"/>
+                        </linearGradient>
+                    </defs>
+                    <polyline points="0,30 10,26 20,28 30,18 40,22 50,12 60,16 70,8 80,10"
+                        stroke="#00f0ff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    <polygon points="0,30 10,26 20,28 30,18 40,22 50,12 60,16 70,8 80,10 80,36 0,36"
+                        fill="url(#chartGrad)"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- ===== QUICK STATS ===== -->
+        <div class="quick-stats fade-up">
+            <div class="qs-card">
+                <i class="fas fa-crosshairs qs-icon"></i>
+                <span class="qs-label">Akurasi</span>
+                <span class="qs-value">69%</span>
+            </div>
+            <div class="qs-card">
+                <i class="fas fa-users qs-icon"></i>
+                <span class="qs-label">Trader</span>
+                <span class="qs-value" id="traderCount">1.286</span>
+            </div>
+            <div class="qs-card">
+                <i class="fas fa-fire qs-icon"></i>
+                <span class="qs-label">Signal</span>
+                <span class="qs-value up">78%</span>
+            </div>
+        </div>
+
+        <!-- ===== LIVE SIGNAL ===== -->
+        <div class="section-title fade-up">
+            <h2><i class="fas fa-satellite-dish"></i> Live Signal</h2>
+            <a href="#" class="see-all">Detail <i class="fas fa-chevron-right" style="font-size:0.5rem;"></i></a>
+        </div>
+
+        <div class="signal-card fade-up">
+            <div class="signal-head">
+                <span class="signal-tag"><span class="dot"></span> XAU/USD</span>
+                <span class="signal-time" id="signalTime">Baru saja</span>
+            </div>
+            <div class="signal-body">
+                <div class="left">
+                    <span class="pair" id="livePrice">Rp 89.402.044</span>
+                    <span class="price">Harga saat ini</span>
+                </div>
+                <div class="right">
+                    <span class="change down" id="priceChange">
+                        <i class="fas fa-arrow-down"></i> -0.00%
+                    </span>
+                    <span class="change-label">Perubahan</span>
+                </div>
+            </div>
+            <div class="signal-strength">
+                <span class="lbl">Strength</span>
+                <div class="strength-bar">
+                    <div class="fill" id="strengthFill" style="width:0%;"></div>
+                </div>
+                <span class="strength-val" id="strengthVal">78% Bullish</span>
+            </div>
+        </div>
+
+        <!-- ===== MENU ===== -->
+        <div class="section-title fade-up">
+            <h2><i class="fas fa-th-large"></i> Layanan</h2>
+            <a href="#" class="see-all">Semua <i class="fas fa-chevron-right" style="font-size:0.5rem;"></i></a>
+        </div>
+
+        <div class="menu-list">
+            <!-- Jurnal App -->
+            <a href="https://cdx-id.vercel.app/" target="_blank" class="menu-item fade-up">
+                <div class="menu-icon cyan">
+                    <i class="fas fa-pen-fancy"></i>
+                </div>
+                <div class="menu-text">
+                    <span class="title">Jurnal App</span>
+                    <span class="sub">Catat & analisa trading kamu</span>
+                </div>
+                <i class="fas fa-chevron-right menu-arrow"></i>
+            </a>
+
+            <!-- Komunitas Discord -->
+            <a href="https://discord.gg/db686rhZp" target="_blank" class="menu-item fade-up">
+                <div class="menu-icon purple">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="menu-text">
+                    <span class="title">Komunitas Discord</span>
+                    <span class="sub">Diskusi & sharing sesama trader</span>
+                </div>
+                <i class="fas fa-chevron-right menu-arrow"></i>
+            </a>
+
+            <!-- Grup Telegram (BARU) -->
+            <a href="https://t.me/+fBTFrIl88pwwYWRl" target="_blank" class="menu-item fade-up">
+                <div class="menu-icon telegram">
+                    <i class="fab fa-telegram-plane"></i>
+                </div>
+                <div class="menu-text">
+                    <span class="title">Grup Telegram</span>
+                    <span class="sub">Join komunitas trader aktif</span>
+                </div>
+                <i class="fas fa-chevron-right menu-arrow"></i>
+            </a>
+
+            <!-- Join VIP -->
+            <a href="https://t.me/+6285746639477?text=Halo%20gua%20mau%20join%20VIP%20Signal%20Free%20Trader%20X%20Academy" target="_blank" class="menu-item vip fade-up">
+                <div class="menu-icon gold">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <div class="menu-text">
+                    <span class="title">Join VIP <span class="vip-badge">HOT</span></span>
+                    <span class="sub">Free Akses Unlimited</span>
+                </div>
+                <i class="fas fa-chevron-right menu-arrow"></i>
+            </a>
+        </div>
+
+        <!-- ===== BROKER BANNER ===== -->
+        <a href="https://vigco.co/la-s1com-inv/id/LAq394j2" target="_blank" class="broker-banner fade-up">
+            <div class="left">
+                <div class="icon"><i class="fas fa-landmark"></i></div>
+                <div class="txt">
+                    <span class="t1">Broker Semi Interbank</span>
+                    <span class="t2">Regulasi resmi & aman</span>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right arrow"></i>
+        </a>
+
+        <!-- ===== BOTTOM NAV ===== -->
+        <div class="bottom-nav fade-up">
+            <a href="https://traderx-id-app.vercel.app/" target="_blank" class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span class="lbl">Home</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span class="lbl">Chart</span>
+            </a>
+            <a href="https://t.me/+fBTFrIl88pwwYWRl" target="_blank" class="nav-item">
+                <i class="fab fa-telegram-plane"></i>
+                <span class="lbl">Telegram</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-user-circle"></i>
+                <span class="lbl">Profil</span>
+            </a>
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <div class="footer fade-up">
+            <div class="url-row">
+                <i class="fas fa-link"></i>
+                <span id="siteUrl">traderx-id-app.vercel.app</span>
+                <button class="btn-copy" id="copyBtn"><i class="fas fa-copy"></i></button>
+            </div>
+            <div>&copy; 2026 Trader X Academy — <a href="#" target="_blank">Tentang Kami</a></div>
+        </div>
+
+    </div>
+
+    <script>
+        // ===== STRENGTH BAR =====
+        setTimeout(() => {
+            document.getElementById('strengthFill').style.width = '78%';
+        }, 600);
+
+        // ===== HARGA UPDATER =====
+        const priceEl = document.getElementById('livePrice');
+        const changeEl = document.getElementById('priceChange');
+        const timeEl = document.getElementById('signalTime');
+        let basePrice = 89402044;
+        let counter = 0;
+
+        setInterval(() => {
+            const change = (Math.random() * 1000) - 500;
+            basePrice += change;
+            if (basePrice < 88000000) basePrice = 88000000;
+            if (basePrice > 91000000) basePrice = 91000000;
+
+            priceEl.textContent = 'Rp ' + basePrice.toLocaleString('id-ID');
+
+            const isUp = change >= 0;
+            const percentChange = ((change / basePrice) * 100).toFixed(2);
+            const arrow = isUp ? 'fa-arrow-up' : 'fa-arrow-down';
+            const sign = isUp ? '+' : '';
+
+            changeEl.innerHTML = `<i class="fas ${arrow}"></i> ${sign}${percentChange}%`;
+            changeEl.className = `change ${isUp ? 'up' : 'down'}`;
+
+            counter++;
+            if (counter === 1) timeEl.textContent = '3 detik lalu';
+            else if (counter < 5) timeEl.textContent = (counter * 3) + ' detik lalu';
+            else timeEl.textContent = 'Baru saja';
+        }, 3000);
+
+        // ===== TRADER COUNTER =====
+        let traderCount = 1286;
+        setInterval(() => {
+            traderCount += Math.floor(Math.random() * 3);
+            document.getElementById('traderCount').textContent = traderCount.toLocaleString('id-ID');
+        }, 5000);
+
+        // ===== COPY LINK =====
+        document.getElementById('copyBtn').addEventListener('click', function() {
+            const url = document.getElementById('siteUrl').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                this.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-copy"></i>';
+                }, 2000);
+            }).catch(() => {
+                const range = document.createRange();
+                const selection = window.getSelection();
+                const el = document.getElementById('siteUrl');
+                range.selectNodeContents(el);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                document.execCommand('copy');
+                this.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-copy"></i>';
+                }, 2000);
+            });
+        });
+
+        console.log('💎 Trader X · Neon Dashboard + Grup Telegram loaded!');
+    </script>
+</body>
+</html>
